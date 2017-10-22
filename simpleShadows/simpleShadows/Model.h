@@ -21,9 +21,12 @@
 #include <sstream>
 #include <iostream>
 #include <map>
+#include <utility>
 
 using std::vector;
 using std::string;
+using std::move;
+using std::strcmp;
 using std::cout;
 using std::endl;
 
@@ -41,7 +44,7 @@ public:
 	vector<Mesh> meshes;
 private:
 
-
+	vector<Texture> texturesLoaded;
 	string directory;
 
 	void loadModel(string path);

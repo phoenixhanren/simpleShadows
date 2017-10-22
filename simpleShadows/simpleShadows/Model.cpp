@@ -150,14 +150,31 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial * mat, aiTextureType type
 	{
 		aiString str;
 		mat->GetTexture(type, i, &str);
-		Texture texture;
-		texture.id = TextureFromFile(str.C_Str(), directory);
-		texture.type = typeName;
-		texture.path = str;
-		textures.push_back(texture);
+
+		bool exist = false;
+
+		for (unsigned int j = 0; j != texturesLoaded.size(); ++j)
+		{
+			if (strcmp(texturesLoaded[j].path.C_Str(), str.C_Str()) == 0)
+			{
+				exist = true;
+				textures.push_back(texturesLoaded[j]);
+				break;
+			}
+		}
+		if (!exist)
+		{
+			Texture texture;
+			texture.id = TextureFromFile(str.C_Str(), directory);
+			texture.type = typeName;
+			texture.path = str;
+			textures.push_back(texture);
+			texturesLoaded.push_back(texture);
+		}
+
 	}
 
-	return textures;
+	return move(textures);
 }
 
 
