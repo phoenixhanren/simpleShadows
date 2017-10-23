@@ -1,9 +1,6 @@
 #include "Model.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
-unsigned int TextureFromFile(const char * path, const string & directory, bool gamma = false)
+unsigned int TextureFromFile(const char * path, const string & directory, bool gamma)
 {
 	string filename = string(path);
 	filename = directory + '/' + filename;
@@ -36,7 +33,7 @@ unsigned int TextureFromFile(const char * path, const string & directory, bool g
 	}
 	else
 	{
-		std::cout << "Texture failed to load at path: " << path << std::endl;
+		std::cout << "Texture failed to load at path: " << filename.c_str() << std::endl;
 		stbi_image_free(data);
 	}
 

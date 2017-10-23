@@ -1,3 +1,15 @@
 ﻿  源.cpp
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\shader.h(83): warning C4101: “info_log”: 未引用的局部变量
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\shader.h(82): warning C4101: “success”: 未引用的局部变量
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(39): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(40): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(98): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(99): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(103): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(104): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(106): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(107): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(114): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(265): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
   simpleShadows.vcxproj -> D:\daily exercise\opengl\simpleShadows\simpleShadows\Debug\simpleShadows.exe
   simpleShadows.vcxproj -> D:\daily exercise\opengl\simpleShadows\simpleShadows\Debug\simpleShadows.pdb (Partial PDB)

@@ -5,6 +5,10 @@
 #define GLEW_STATIC
 #endif // !GLEW_STATIC
 
+//#ifndef STB_IMAGE_IMPLEMENTATION
+//#define STB_IMAGE_IMPLEMENTATION
+//#endif
+#include <stb_image.h>
 #include <GL\glew.h>
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>

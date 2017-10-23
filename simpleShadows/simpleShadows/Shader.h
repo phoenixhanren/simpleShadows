@@ -21,6 +21,9 @@ class Shader
 public:
 	unsigned int ID;
 
+	Shader() {
+	}
+
 	Shader(const char *vertex_path, const char *fragment_path, const char *geometry_path = nullptr)
 	{
 		std::string vertex_code;

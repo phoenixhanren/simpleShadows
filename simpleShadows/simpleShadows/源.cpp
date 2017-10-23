@@ -13,7 +13,9 @@
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
 
+
 #define STB_IMAGE_IMPLEMENTATION
+
 #include <stb_image.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -21,11 +23,12 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 void setup();
+void render();
+void clean();
 
 using std::cin;
 using std::cout;
 using std::endl;
-
 
 // settings
 const unsigned int SCR_WIDTH = 1280;
@@ -46,11 +49,23 @@ GLFWwindow* window;
 unsigned int planeVAO, planeVBO;
 unsigned int quadVAO, quadVBO;
 unsigned int cubeVAO, cubeVBO;
+unsigned int woods;
+glm::vec3 cubePositions[3];
+Shader shadowShader;
+glm::vec3 lightPos(-2.0f, 4.0f, 1.0f);
 
 int main()
 {
 	setup();
-	cout << "hello world!" << endl;
+	shadowShader = Shader("shadowShader.vs", "shadowShader.fs");
+	while (!glfwWindowShouldClose(window))
+	{
+		render();
+	}
+
+	clean();
+	
+	return 0;
 }
 
 void processInput(GLFWwindow *window)
@@ -128,7 +143,7 @@ void setup()
 	}
 
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 
 	GLfloat planeVertices[] = {
 		// Positions          // Normals         // Texture Coords
@@ -194,11 +209,9 @@ void setup()
 		-0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f // bottom-left        
 	};
 
-	glm::vec3 cubePositions[] = {
-		glm::vec3(0.0f, 1.5f, 0.0f),
-		glm::vec3(2.0f, 0.0f, 1.0f),
-		glm::vec3(-1.0f, 0.0f, 2.0f)
-	};
+	cubePositions[0] = glm::vec3(0.0f, 1.5f, 0.0f);
+	cubePositions[1] = glm::vec3(2.0f, 0.0f, 1.0f);
+	cubePositions[2] = glm::vec3(-1.0f, 0.0f, 2.0f);
 
 #pragma region VAOS
 	glGenVertexArrays(1, &planeVAO);
@@ -242,5 +255,50 @@ void setup()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 #pragma endregion
+
+	woods = TextureFromFile("wood.png", "");
+
+}
+
+void render()
+{
+	float currentFrame = glfwGetTime();
+	deltaTime = currentFrame - lastFrame;
+	lastFrame = currentFrame;
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	shadowShader.use();
+	glm::mat4 model;
+	glm::mat4 view = camera.GetViewMatrix();
+	glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),
+		(float)SCR_WIDTH / SCR_HEIGHT, 1.0f, 100.0f);
+	shadowShader.set_mat4("projection", projection);
+	shadowShader.set_mat4("view", view);
+	shadowShader.set_mat4("model", model);
+	shadowShader.set_vec3("lightPos", lightPos);
+	shadowShader.set_vec3("viewPos", camera.Position);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, woods);
+	shadowShader.set_int("diffuseTexture", 0);
+	glBindVertexArray(planeVAO);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glBindVertexArray(cubeVAO);
+
+	for (unsigned int i = 0; i != cubePositions->length(); ++i)
+	{
+		model = glm::mat4();
+		model = glm::translate(model, cubePositions[i]);
+		shadowShader.set_mat4("model", model);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+	}
+	glBindVertexArray(0);
+
+	processInput(window);
+	glfwSwapBuffers(window);
+	glfwPollEvents();
+}
+
+void clean()
+{
 
 }
