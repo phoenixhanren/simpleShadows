@@ -30,7 +30,7 @@ using std::strcmp;
 using std::cout;
 using std::endl;
 
-
+unsigned int TextureFromFile(const char * path, const string & directory, bool gamma = false);
 
 class Model
 {
