@@ -13,6 +13,8 @@
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
 
+#include <vector>
+#include <utility>
 
 #define STB_IMAGE_IMPLEMENTATION
 
@@ -25,10 +27,16 @@ void processInput(GLFWwindow *window);
 void setup();
 void render();
 void clean();
+void drawModelVolumes();
+vector<pair<float, float>> slihouetteDetemination(const vector<GLfloat> &vertices, const glm::vec3 &lightPosition);
+
 
 using std::cin;
 using std::cout;
 using std::endl;
+using std::pair;
+using std::vector;
+
 
 // settings
 const unsigned int SCR_WIDTH = 1280;
@@ -166,6 +174,7 @@ void setup()
 
 	GLfloat cubeVertices[] = {
 		// Back face
+		//pos				 //normal			//text
 		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // Bottom-left
 		0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, // top-right
 		0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
@@ -256,7 +265,7 @@ void setup()
 
 #pragma endregion
 
-	woods = TextureFromFile("wood.png", "");
+	woods = TextureFromFile("wood.png", "D:\\daily exercise\\opengl\\simpleShadows\\simpleShadows\\Debug");
 
 }
 
@@ -266,7 +275,18 @@ void render()
 	deltaTime = currentFrame - lastFrame;
 	lastFrame = currentFrame;
 
+
+	//清除缓冲区，包括模板缓冲
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+	//第一遍 渲染环境光，深度值
+
+	//第二遍 渲染模板值
+
+	//第三遍 渲染光源光照，依据模板值判断阴影
+
+
+
 	shadowShader.use();
 	glm::mat4 model;
 	glm::mat4 view = camera.GetViewMatrix();
@@ -290,6 +310,7 @@ void render()
 		model = glm::translate(model, cubePositions[i]);
 		shadowShader.set_mat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
+
 	}
 	glBindVertexArray(0);
 
@@ -299,6 +320,21 @@ void render()
 }
 
 void clean()
+{
+
+}
+
+void drawModelVolumes()
+{
+
+}
+
+vector<pair<float, float>> slihouetteDetemination(const vector<GLfloat> &vertices, const glm::vec3 &lightPosition)
+{
+
+}
+
+vector<GLfloat> makeModel(const vector<GLfloat> &vertices, glm::mat4 &projection, glm::mat4 &view, glm::mat4 &model)
 {
 
 }
