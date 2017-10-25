@@ -43,11 +43,14 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shadowShader.fs">
+    <None Include="Shaders\shadowShader.fs">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="shadowShader.vs">
+    <None Include="Shaders\shadowShader.vs">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\silhouetteShader.fs" />
+    <None Include="Shaders\silhouetteShader.gs" />
+    <None Include="Shaders\silhouetteShader.vs" />
   </ItemGroup>
 </Project>

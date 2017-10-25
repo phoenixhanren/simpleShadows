@@ -12,14 +12,21 @@
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
-
+#include <list>
 #include <vector>
 #include <utility>
+#include <map>
 
 #define STB_IMAGE_IMPLEMENTATION
 
 #include <stb_image.h>
-
+using std::list;
+using std::cin;
+using std::cout;
+using std::endl;
+using std::pair;
+using std::vector;
+using std::map;
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -28,15 +35,141 @@ void setup();
 void render();
 void clean();
 void drawModelVolumes();
-vector<pair<float, float>> slihouetteDetemination(const vector<GLfloat> &vertices, const glm::vec3 &lightPosition);
+list<pair<glm::vec3, glm::vec3>> 
+slihouetteDetemination(const vector<GLfloat> &vertices, const glm::vec3 &lightPosition,const glm::mat4 &projection, const glm::mat4 &view, const glm::mat4 &model);
+
+struct Edge
+{
+	Edge(GLuint _a, GLuint _b)
+	{
+		assert(_a != _b);
+
+		if (_a < _b)
+		{
+			a = _a;
+			b = _b;
+		}
+		else
+		{
+			a = _b;
+			b = _a;
+		}
+	}
+
+	void Print()
+	{
+		printf("Edge %d %d\n", a, b);
+	}
+
+	GLuint a;
+	GLuint b;
+};
+
+struct Neighbors
+{
+	GLuint n1;
+	GLuint n2;
+
+	Neighbors()
+	{
+		n1 = n2 = (GLuint)-1;
+	}
+
+	void AddNeigbor(GLuint n)
+	{
+		if (n1 == -1) {
+			n1 = n;
+		}
+		else if (n2 == -1) {
+			n2 = n;
+		}
+		else {
+			assert(0);
+		}
+	}
+
+	GLuint GetOther(GLuint me) const
+	{
+		if (n1 == me) {
+			return n2;
+		}
+		else if (n2 == me) {
+			return n1;
+		}
+		else {
+			assert(0);
+		}
+
+		return 0;
+	}
+};
+
+struct CompareEdges
+{
+	bool operator() (const Edge& Edge1, const Edge& Edge2)const
+	{
+		if (Edge1.a < Edge2.a) {
+			return true;
+		}
+		else if (Edge1.a == Edge2.a) {
+			return (Edge1.b < Edge2.b);
+		}
+		else {
+			return false;
+		}
+	}
+};
 
 
-using std::cin;
-using std::cout;
-using std::endl;
-using std::pair;
-using std::vector;
+struct CompareVectors
+{
+	bool operator()(const aiVector3D& a, const aiVector3D& b)
+	{
+		if (a.x < b.x) {
+			return true;
+		}
+		else if (a.x == b.x) {
+			if (a.y < b.y) {
+				return true;
+			}
+			else if (a.y == b.y) {
+				if (a.z < b.z) {
+					return true;
+				}
+			}
+		}
 
+		return false;
+	}
+};
+
+
+struct Face
+{
+	GLuint Indices[3];
+
+	Face(GLuint x, GLuint y, GLuint z) {
+		Indices[0] = x;
+		Indices[1] = y;
+		Indices[2] = z;
+	}
+
+	GLuint GetOppositeIndex(const Edge& e) const
+	{
+		for (GLuint i = 0; i < 3; i++) {
+			GLuint Index = Indices[i];
+
+			if (Index != e.a && Index != e.b) {
+				return Index;
+			}
+		}
+
+		assert(0);
+
+		return 0;
+	}
+};
+void findAdjacencies(const vector<Face>& paiMesh, vector<unsigned int>& Indices);
 
 // settings
 const unsigned int SCR_WIDTH = 1280;
@@ -57,15 +190,111 @@ GLFWwindow* window;
 unsigned int planeVAO, planeVBO;
 unsigned int quadVAO, quadVBO;
 unsigned int cubeVAO, cubeVBO;
+unsigned int eleCubeVAO, eleCubeVBO, eleCubeEBO;
 unsigned int woods;
 glm::vec3 cubePositions[3];
+GLfloat cubeVertices[] = {
+		// Back face
+		//pos				 //normal			//text
+		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // Bottom-left
+		0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, // top-right
+		0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
+		0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,  // top-right
+		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,  // bottom-left
+		-0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f,// top-left
+		// Front face
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom-left
+		0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,  // bottom-right
+		0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,  // top-right
+		0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // top-right
+		-0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,  // top-left
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  // bottom-left
+		// Left face
+		-0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-right
+		-0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top-left
+		-0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,  // bottom-left
+		-0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-left
+		-0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,  // bottom-right
+		-0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-right
+		// Right face
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-left
+		0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-right
+		0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top-right         
+		0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,  // bottom-right
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,  // top-left
+		0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom-left     
+		// Bottom face
+		-0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, // top-right
+		0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f, // top-left
+		0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,// bottom-left
+		0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, // bottom-left
+		-0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom-right
+		-0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, // top-right
+		// Top face
+		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,// top-left
+		0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom-right
+		0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // top-right     
+		0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom-right
+		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,// top-left
+		-0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f // bottom-left        
+};
+vector<GLfloat>cubeVectors(cubeVertices, cubeVertices + sizeof(cubeVertices) / sizeof(GLfloat));
 Shader shadowShader;
-glm::vec3 lightPos(-2.0f, 4.0f, 1.0f);
+Shader silhouetteShader;
+Shader lightShader;
+glm::vec3 lightPos(10.0f, 10.0f, 10.0f);
+
+GLfloat cubeVerticesIndex[] = {
+	-0.5f, -0.5f, -0.5f,
+	0.5f, 0.5f, -0.5f, 
+	0.5f, -0.5f, -0.5f,         
+    -0.5f, 0.5f, -0.5f,
+    -0.5f, -0.5f, 0.5f, 
+    0.5f, -0.5f, 0.5f,   
+    0.5f, 0.5f, 0.5f,   
+	-0.5f, 0.5f, 0.5f,   
+};
+
+
+GLuint cubeIndices[] = {
+	0, 1, 2, 
+	1, 0, 3,
+	4, 5, 6, 
+	6, 7, 4,
+	7, 3, 0,
+	0, 4, 7,
+	6, 2, 1, 
+	2, 6, 5,
+	0, 2, 5, 
+	5, 4, 0,
+	3, 6, 1, 
+	6, 3, 7
+};
+
+
+vector<Face> mesh = {
+	Face(0, 1, 2),
+	Face(1, 0, 3),
+	Face(4, 5, 6),
+	Face(6, 7, 4),
+	Face(7, 3, 0),
+	Face(0, 4, 7),
+	Face(6, 2, 1),
+	Face(2, 6, 5),
+	Face(0, 2, 5),
+	Face(5, 4, 0),
+	Face(3, 6, 1),
+	Face(6, 3, 7)
+};
+vector<unsigned int> indi;
+
 
 int main()
 {
 	setup();
-	shadowShader = Shader("shadowShader.vs", "shadowShader.fs");
+	shadowShader = Shader("Shaders//shadowShader.vs", "Shaders//shadowShader.fs");
+	silhouetteShader = Shader("Shaders//silhouetteShader.vs", "Shaders//silhouetteShader.fs", "Shaders//silhouetteShader.gs");
+	lightShader = Shader("Shaders//lightShader.vs", "Shaders//lightShader.fs");
 	while (!glfwWindowShouldClose(window))
 	{
 		render();
@@ -172,7 +401,7 @@ void setup()
 		1.0f, -1.0f, 0.0f,  1.0f, 0.0f,
 	};
 
-	GLfloat cubeVertices[] = {
+	/*GLfloat cubeVertices[] = {
 		// Back face
 		//pos				 //normal			//text
 		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // Bottom-left
@@ -216,11 +445,20 @@ void setup()
 		0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom-right
 		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,// top-left
 		-0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f // bottom-left        
-	};
+	};*/
 
 	cubePositions[0] = glm::vec3(0.0f, 1.5f, 0.0f);
 	cubePositions[1] = glm::vec3(2.0f, 0.0f, 1.0f);
 	cubePositions[2] = glm::vec3(-1.0f, 0.0f, 2.0f);
+
+	
+	findAdjacencies(mesh, indi);
+
+	for (auto &i : indi)
+	{
+		cout << i << " ";
+	}
+	cout << endl;
 
 #pragma region VAOS
 	glGenVertexArrays(1, &planeVAO);
@@ -263,6 +501,22 @@ void setup()
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	glGenVertexArrays(1, &eleCubeVAO);
+	glGenBuffers(1, &eleCubeVBO);
+	glGenBuffers(1, &eleCubeEBO);
+	glBindVertexArray(eleCubeVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, eleCubeVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVerticesIndex), cubeVerticesIndex, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eleCubeEBO);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeIndices), cubeIndices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indi.size(), &indi[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
 #pragma endregion
 
 	woods = TextureFromFile("wood.png", "D:\\daily exercise\\opengl\\simpleShadows\\simpleShadows\\Debug");
@@ -284,9 +538,8 @@ void render()
 	//第二遍 渲染模板值
 
 	//第三遍 渲染光源光照，依据模板值判断阴影
-
-
-
+	list<pair<glm::vec3, glm::vec3>> silhouetteEdges;
+	glDepthFunc(GL_LESS);
 	shadowShader.use();
 	glm::mat4 model;
 	glm::mat4 view = camera.GetViewMatrix();
@@ -310,13 +563,57 @@ void render()
 		model = glm::translate(model, cubePositions[i]);
 		shadowShader.set_mat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
+		
+		//silhouetteEdges.splice(silhouetteEdges.end(), slihouetteDetemination(cubeVectors, lightPos, projection, view, model));
 
 	}
+
+	lightShader.use();
+	lightShader.set_mat4("projection", projection);
+	lightShader.set_mat4("view", view);
+	model = glm::mat4();
+	model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
+	model = glm::translate(model, lightPos);
+	lightShader.set_mat4("model", model);
+	glDrawArrays(cubeVAO, 0, 36);
+
+	silhouetteShader.use();
+	silhouetteShader.set_mat4("view", view);
+	silhouetteShader.set_mat4("projection", projection);
+	silhouetteShader.set_vec3("lightPos", lightPos);
+	glDepthFunc(GL_LEQUAL);
+	glLineWidth(5.0f);
+	glBindVertexArray(eleCubeVAO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eleCubeEBO);
+	for (unsigned int i = 0; i != cubePositions->length(); ++i)
+	{
+		model = glm::mat4();
+		model = glm::translate(model, cubePositions[i]);
+		silhouetteShader.set_mat4("model", model);
+		//glDrawArrays(GL_TRIANGLES_ADJACENCY, 0, 36);
+		glDrawElementsBaseVertex(GL_TRIANGLES_ADJACENCY, indi.size(), GL_UNSIGNED_INT, (void *)0
+			,0);
+		//silhouetteEdges.splice(silhouetteEdges.end(), slihouetteDetemination(cubeVectors, lightPos, projection, view, model));
+		//glDrawElements(GL_TRIANGLES_ADJACENCY, indi.size(), GL_UNSIGNED_INT, 0);
+		//glDrawElementsBaseVertex(GL_TRIANGLES_ADJACENCY, indi.size(),
+		//	GL_UNSIGNED_INT,)
+	}
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	glLineWidth(0.0f);
 	glBindVertexArray(0);
 
 	processInput(window);
 	glfwSwapBuffers(window);
 	glfwPollEvents();
+
+	for (auto &edge : silhouetteEdges)
+	{
+		cout << "(" << edge.first.x << ", " << edge.first.y << ", " << edge.first.z << ")->";
+		cout << "(" << edge.second.x << ", " << edge.second.y << ", " << edge.second.z << ")" << endl;
+	}
+	//cout << "==============================================" << endl;
+
 }
 
 void clean()
@@ -329,12 +626,82 @@ void drawModelVolumes()
 
 }
 
-vector<pair<float, float>> slihouetteDetemination(const vector<GLfloat> &vertices, const glm::vec3 &lightPosition)
+list<pair<glm::vec3, glm::vec3>> slihouetteDetemination(const vector<GLfloat> &vertices, const glm::vec3 &lightPosition,
+	const glm::mat4 &projection, const glm::mat4 &view, const glm::mat4 &model)
 {
+	list<pair<glm::vec3, glm::vec3>> slihouetteEdge;
+	vector<glm::vec3> points;
+
+	glm::mat4 transformMat = projection * view * model;
+
+	for (int i = 0; i < vertices.size(); ++i)
+	{
+		GLfloat i1 = vertices[i++];
+		GLfloat i2 = vertices[i++];
+		GLfloat i3 = vertices[i++];
+		i = i + 4;
+		points.push_back(glm::vec3(transformMat * (glm::vec4(glm::vec3(i1, i2, i3), 1.0))));
+	}
+
+	for (int i = 0; i != points.size(); ++i)
+	{
+		glm::vec3 i1 = points[i++];
+		glm::vec3 i2 = points[i++];
+		glm::vec3 i3 = points[i];
+		pair<glm::vec3, glm::vec3> edge(i2 - i1, i3 - i2);
+		glm::vec3 normal = glm::cross(edge.first, edge.second);
+		glm::vec3 lightDir = lightPosition - i1;
+
+		if (glm::dot(normal , lightDir) > 0)
+		{
+			size_t originalSize = slihouetteEdge.size();
+			slihouetteEdge.remove_if([&](const pair<glm::vec3, glm::vec3>& e)->bool{
+				if ((e.first == edge.first && e.second == edge.second) || (e.first == edge.second && e.second == edge.first))
+				{
+					return true;
+				}
+				return false;
+			});
+			if (originalSize == slihouetteEdge.size())
+			{
+				slihouetteEdge.push_back(edge);
+			}
+		}
+	}
+
+	return slihouetteEdge;
 
 }
 
-vector<GLfloat> makeModel(const vector<GLfloat> &vertices, glm::mat4 &projection, glm::mat4 &view, glm::mat4 &model)
+void findAdjacencies(const vector<Face>& mesh, vector<unsigned int>& Indices)
 {
+	vector<Face> uniqueFaces;
+	map<Edge, Neighbors, CompareEdges> indexMap;
+	int index = 0;
+	for (auto &i : mesh)
+	{
+		Edge e1(i.Indices[0], i.Indices[1]);
+		Edge e2(i.Indices[1], i.Indices[2]);
+		Edge e3(i.Indices[2], i.Indices[0]);
 
+		indexMap[e1].AddNeigbor(index);
+		indexMap[e2].AddNeigbor(index);
+		indexMap[e3].AddNeigbor(index);
+		++index;
+	}
+	index = 0;
+	for (auto &i : mesh)
+	{
+		for (int j = 0; j < 3; ++j)
+		{
+			Edge e(i.Indices[j], i.Indices[(j + 1) % 3]);
+			Neighbors n = indexMap[e];
+			GLuint otherTri = n.GetOther(index);
+
+			Indices.push_back(i.Indices[j]);
+			Indices.push_back(mesh[index].GetOppositeIndex(e));
+
+		}
+		++index;
+	}
 }
