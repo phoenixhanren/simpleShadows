@@ -11,6 +11,6 @@ d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(350):
 d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(351): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
 d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(358): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
 d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(541): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(671): warning C4018: “<”: 有符号/无符号不匹配
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(672): warning C4018: “<”: 有符号/无符号不匹配
   simpleShadows.vcxproj -> D:\daily exercise\opengl\simpleShadows\simpleShadows\Debug\simpleShadows.exe
   simpleShadows.vcxproj -> D:\daily exercise\opengl\simpleShadows\simpleShadows\Debug\simpleShadows.pdb (Partial PDB)

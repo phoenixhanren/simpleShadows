@@ -524,7 +524,7 @@ void setup()
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eleCubeEBO);
 	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeIndices), cubeIndices, GL_STATIC_DRAW);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indi.size(), &indi[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indi.size() * sizeof(indi[0]), &indi[0], GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -575,7 +575,7 @@ void render()
 		model = glm::mat4();
 		model = glm::translate(model, cubePositions[i]);
 		shadowShader.set_mat4("model", model);
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 		
 		//silhouetteEdges.splice(silhouetteEdges.end(), slihouetteDetemination(cubeVectors, lightPos, projection, view, model));
 
@@ -597,17 +597,18 @@ void render()
 	glDepthFunc(GL_LEQUAL);
 	glLineWidth(5.0f);
 	glBindVertexArray(eleCubeVAO);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eleCubeEBO);
+
 	for (unsigned int i = 0; i != cubePositions->length(); ++i)
 	{
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eleCubeEBO);
 		model = glm::mat4();
 		model = glm::translate(model, cubePositions[i]);
 		silhouetteShader.set_mat4("model", model);
 		//glDrawArrays(GL_TRIANGLES_ADJACENCY, 0, 36);
-		glDrawElementsBaseVertex(GL_TRIANGLES_ADJACENCY, indi.size(), GL_UNSIGNED_INT, (void *)0
-			,0);
+		//glDrawElementsBaseVertex(GL_TRIANGLES_ADJACENCY, indi.size(), GL_UNSIGNED_INT, (void *)0
+		//	,0);
 		//silhouetteEdges.splice(silhouetteEdges.end(), slihouetteDetemination(cubeVectors, lightPos, projection, view, model));
-		//glDrawElements(GL_TRIANGLES_ADJACENCY, indi.size(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES_ADJACENCY, indi.size(), GL_UNSIGNED_INT, 0);
 		//glDrawElementsBaseVertex(GL_TRIANGLES_ADJACENCY, indi.size(),
 		//	GL_UNSIGNED_INT,)
 	}
@@ -643,10 +644,10 @@ void render()
 
 	for (auto &edge : silhouetteEdges)
 	{
-		cout << "(" << edge.first.x << ", " << edge.first.y << ", " << edge.first.z << ")->";
-		cout << "(" << edge.second.x << ", " << edge.second.y << ", " << edge.second.z << ")" << endl;
+		//cout << "(" << edge.first.x << ", " << edge.first.y << ", " << edge.first.z << ")->";
+		//cout << "(" << edge.second.x << ", " << edge.second.y << ", " << edge.second.z << ")" << endl;
 	}
-	cout << "==============================================" << endl;
+	//cout << "==============================================" << endl;
 
 }
 
