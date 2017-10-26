@@ -241,7 +241,8 @@ GLfloat cubeVertices[] = {
 vector<GLfloat>cubeVectors(cubeVertices, cubeVertices + sizeof(cubeVertices) / sizeof(GLfloat));
 Shader shadowShader;
 Shader silhouetteShader;
-Shader lightShader;
+Shader lightShader; 
+Shader silTestShader;
 glm::vec3 lightPos(10.0f, 10.0f, 10.0f);
 
 GLfloat cubeVerticesIndex[] = {
@@ -259,14 +260,19 @@ GLfloat cubeVerticesIndex[] = {
 GLuint cubeIndices[] = {
 	0, 1, 2, 
 	1, 0, 3,
+
 	4, 5, 6, 
 	6, 7, 4,
+
 	7, 3, 0,
 	0, 4, 7,
+
 	6, 2, 1, 
 	2, 6, 5,
+
 	0, 2, 5, 
 	5, 4, 0,
+
 	3, 6, 1, 
 	6, 3, 7
 };
@@ -294,6 +300,7 @@ int main()
 	setup();
 	shadowShader = Shader("Shaders//shadowShader.vs", "Shaders//shadowShader.fs");
 	silhouetteShader = Shader("Shaders//silhouetteShader.vs", "Shaders//silhouetteShader.fs", "Shaders//silhouetteShader.gs");
+	silTestShader = Shader("Shaders//silhouetteShader.vs", "Shaders//silhouetteShader.fs");
 	lightShader = Shader("Shaders//lightShader.vs", "Shaders//lightShader.fs");
 	while (!glfwWindowShouldClose(window))
 	{
@@ -453,12 +460,18 @@ void setup()
 
 	
 	findAdjacencies(mesh, indi);
-
+	int count = 0;
 	for (auto &i : indi)
 	{
 		cout << i << " ";
+		if ((++count) % 6 == 0)
+		{
+			cout << endl;
+		}
 	}
 	cout << endl;
+
+	cout << indi.size() << endl;
 
 #pragma region VAOS
 	glGenVertexArrays(1, &planeVAO);
@@ -507,11 +520,11 @@ void setup()
 	glBindVertexArray(eleCubeVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, eleCubeVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVerticesIndex), cubeVerticesIndex, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eleCubeEBO);
 	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeIndices), cubeIndices, GL_STATIC_DRAW);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indi.size(), &indi[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -562,7 +575,7 @@ void render()
 		model = glm::mat4();
 		model = glm::translate(model, cubePositions[i]);
 		shadowShader.set_mat4("model", model);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
 		
 		//silhouetteEdges.splice(silhouetteEdges.end(), slihouetteDetemination(cubeVectors, lightPos, projection, view, model));
 
@@ -575,7 +588,7 @@ void render()
 	model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
 	model = glm::translate(model, lightPos);
 	lightShader.set_mat4("model", model);
-	glDrawArrays(cubeVAO, 0, 36);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	silhouetteShader.use();
 	silhouetteShader.set_mat4("view", view);
@@ -584,7 +597,7 @@ void render()
 	glDepthFunc(GL_LEQUAL);
 	glLineWidth(5.0f);
 	glBindVertexArray(eleCubeVAO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eleCubeEBO);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eleCubeEBO);
 	for (unsigned int i = 0; i != cubePositions->length(); ++i)
 	{
 		model = glm::mat4();
@@ -598,9 +611,30 @@ void render()
 		//glDrawElementsBaseVertex(GL_TRIANGLES_ADJACENCY, indi.size(),
 		//	GL_UNSIGNED_INT,)
 	}
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	glLineWidth(0.0f);
+	silTestShader.use();
+	silTestShader.set_mat4("view", view);
+	silTestShader.set_mat4("projection", projection);
+	for (unsigned int i = 0; i != cubePositions->length(); ++i)
+	{
+		model = glm::mat4();
+		model = glm::translate(model, cubePositions[i]);
+		silTestShader.set_mat4("model", model);
+		//glDrawArrays(GL_TRIANGLES_ADJACENCY, 0, 36);
+		//glDrawElementsBaseVertex(GL_TRIANGLES, indi.size(), GL_UNSIGNED_INT, (void *)0
+		//	, 0);
+		//silhouetteEdges.splice(silhouetteEdges.end(), slihouetteDetemination(cubeVectors, lightPos, projection, view, model));
+		//glDrawElements(GL_TRIANGLES, indi.size(), GL_UNSIGNED_INT, 0);
+		//glDrawElementsBaseVertex(GL_TRIANGLES_ADJACENCY, indi.size(),
+		//	GL_UNSIGNED_INT,)
+	}
+
+
+
+
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	glLineWidth(1.0f);
 	glBindVertexArray(0);
 
 	processInput(window);
@@ -612,7 +646,7 @@ void render()
 		cout << "(" << edge.first.x << ", " << edge.first.y << ", " << edge.first.z << ")->";
 		cout << "(" << edge.second.x << ", " << edge.second.y << ", " << edge.second.z << ")" << endl;
 	}
-	//cout << "==============================================" << endl;
+	cout << "==============================================" << endl;
 
 }
 
@@ -699,7 +733,7 @@ void findAdjacencies(const vector<Face>& mesh, vector<unsigned int>& Indices)
 			GLuint otherTri = n.GetOther(index);
 
 			Indices.push_back(i.Indices[j]);
-			Indices.push_back(mesh[index].GetOppositeIndex(e));
+			Indices.push_back(mesh[otherTri].GetOppositeIndex(e));
 
 		}
 		++index;

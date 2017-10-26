@@ -6,7 +6,7 @@ layout (line_strip, max_vertices = 6) out;
 in vec3 worldPos[];
 
 uniform vec3 lightPos;
-
+vec3 lightDirt = vec3(-0.2f, -1.0f, -0.3f);
 void EmitLine(int startIndex, int endIndex)
 {
     gl_Position = gl_in[startIndex].gl_Position;
@@ -31,27 +31,29 @@ void main()
     vec3 normal = cross(e1, e2);
     vec3 lightDir = lightPos - worldPos[0];
 
-    if (dot(normal, lightDir) > 0.00001)
+    if (dot(normal, lightDirt) > 0.00001)
     {
         normal = cross(e3, e1);
 
-        if (dot(normal, lightDir) <= 0.0)
+        if (dot(normal, lightDirt) <= 0.0)
         {
             EmitLine(0, 2);
         }
 
         normal = cross(e4, e5);
+        lightDir = lightPos - worldPos[2];
 
-        if (dot(normal, lightDir) <= 0.0)
+        if (dot(normal, lightDirt) <= 0.0)
         {
             EmitLine(2, 4);
         }
 
         normal = cross(e2, e6);
+        lightDir = lightPos - worldPos[4];     
 
-        if (dot(normal, lightDir) <= 0.0)
+        if (dot(normal, lightDirt) <= 0.0)
         {
-            EmitLine(0, 4);
+            EmitLine(4, 0);
         }
 
     }
