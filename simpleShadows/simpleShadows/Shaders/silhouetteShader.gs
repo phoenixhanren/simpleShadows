@@ -1,11 +1,13 @@
 #version 330 core
 
 layout (triangles_adjacency) in;
-layout (line_strip, max_vertices = 6) out;
+layout (triangle_strip, max_vertices = 18) out;
 
 in vec3 worldPos[];
 
+
 uniform vec3 lightPos;
+uniform vec3 finalLightPos;
 //vec3 lightDirt = vec3(-0.2f, -1.0f, -0.3f);
 void EmitLine(int startIndex, int endIndex)
 {
@@ -18,8 +20,38 @@ void EmitLine(int startIndex, int endIndex)
     EndPrimitive();
 }
 
+void EmitLines(int index)
+{
+    gl_Position = gl_in[index].gl_Position;
+    EmitVertex();
+    vec3 dir = normalize(gl_in[index].gl_Position.xyz -  finalLightPos);
+    gl_Position = vec4(dir, 0.0f);
+    EmitVertex();
+    
+    EndPrimitive();
+}
+
+void EmitQuad(int startIndex, int endIndex)
+{
+    gl_Position = gl_in[startIndex].gl_Position;
+    EmitVertex();
+    gl_Position = gl_in[endIndex].gl_Position;
+    EmitVertex();
+
+    vec3 startDir = normalize(gl_in[startIndex].gl_Position.xyz - finalLightPos);
+    vec3 endDir = normalize(gl_in[endIndex].gl_Position.xyz - finalLightPos);
+    gl_Position = vec4(startDir, 0.0f);
+    EmitVertex();
+    gl_Position = vec4(endDir, 0.0f);
+    EmitVertex();
+    EndPrimitive();
+
+}
+
 void main()
 {
+
+
     vec3 e1 = worldPos[2] - worldPos[0];
     vec3 e2 = worldPos[4] - worldPos[0];
     vec3 e3 = worldPos[1] - worldPos[0];
@@ -37,7 +69,10 @@ void main()
 
         if (dot(normal, lightDir) <= 0.0)
         {
-            EmitLine(0, 2);
+            //EmitLine(0, 2);
+            //EmitLines(0);
+            //EmitLines(2);
+            EmitQuad(0, 2);
         }
 
         normal = cross(e4, e5);
@@ -45,7 +80,10 @@ void main()
 
         if (dot(normal, lightDir) <= 0.0)
         {
-            EmitLine(2, 4);
+            //EmitLine(2, 4);
+            //EmitLines(2);
+            //EmitLines(4);
+            EmitQuad(2, 4);
         }
 
         normal = cross(e2, e6);
@@ -53,7 +91,10 @@ void main()
 
         if (dot(normal, lightDir) <= 0.0)
         {
-            EmitLine(4, 0);
+            //EmitLine(4, 0);
+            //EmitLines(0);
+            //EmitLines(4);
+            EmitQuad(4, 0);
         }
 
     }
