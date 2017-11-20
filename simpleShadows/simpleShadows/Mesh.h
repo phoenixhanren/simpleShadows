@@ -54,6 +54,7 @@ public:
 	*/
 	void Draw(Shader shader);
 
+	
 	unsigned int VAO;
 
 private:

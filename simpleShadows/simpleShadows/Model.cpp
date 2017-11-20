@@ -52,7 +52,7 @@ void Model::Draw(Shader shader)
 	}
 }
 
-void Model::loadModel(string path)
+void Model::loadModel(string path, bool generateAdjacencies = false)
 {
 	Assimp::Importer import;
 	const aiScene * scene = import.ReadFile(path,
@@ -66,24 +66,24 @@ void Model::loadModel(string path)
 
 	directory = path.substr(0, path.find_last_of('/'));
 
-	processNode(scene->mRootNode, scene);
+	processNode(scene->mRootNode, scene, generateAdjacencies);
 }
 
-void Model::processNode(aiNode * node, const aiScene * scene)
+void Model::processNode(aiNode * node, const aiScene * scene, bool generateAdjacencies = false)
 {
 	for (unsigned int i = 0; i < node->mNumMeshes; ++i)
 	{
 		aiMesh * mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.push_back(processMesh(mesh, scene));
+		meshes.push_back(processMesh(mesh, scene, generateAdjacencies));
 	}
 
 	for (unsigned int i = 0; i < node->mNumChildren; ++i)
 	{
-		processNode(node->mChildren[i], scene);
+		processNode(node->mChildren[i], scene, generateAdjacencies);
 	}
 }
 
-Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene)
+Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene, bool generateAdjacencies = false)
 {
 	vector<Vertex> vertices;
 	vector<unsigned int> indices;
