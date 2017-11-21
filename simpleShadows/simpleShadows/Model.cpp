@@ -111,15 +111,24 @@ Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene, bool generateAdjac
 
 		vertices.push_back(vertex);
 	}
+
 	// indices
-	for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
+	if (generateAdjacencies)
 	{
-		aiFace face = mesh->mFaces[i];
-		for (unsigned int j = 0; j < face.mNumIndices; ++j)
+		findAdjacencies(mesh, indices);
+	}
+	else
+	{
+		for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
 		{
-			indices.push_back(face.mIndices[j]);
+			aiFace face = mesh->mFaces[i];
+			for (unsigned int j = 0; j < face.mNumIndices; ++j)
+			{
+				indices.push_back(face.mIndices[j]);
+			}
 		}
 	}
+
 
 	// materials
 	if (mesh->mMaterialIndex >= 0)
@@ -172,6 +181,49 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial * mat, aiTextureType type
 	}
 
 	return move(textures);
+}
+
+void Model::findAdjacencies(const aiMesh * mesh, vector<unsigned int>& ind)
+{
+	vector<Face> uniqueFace;
+	map<aiVector3D, unsigned int> posMap;
+	map<Edge, vector<int>> neighborsMap;
+
+	for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
+	{
+		const aiFace & face = mesh->mFaces[i];
+
+		Face unique;
+
+		for (unsigned int j = 0; j < 3; ++j)
+		{
+			unsigned int index = face.mIndices[j];
+			aiVector3D & v = mesh->mVertices[index];
+
+			if (posMap.find(v) == posMap.end())
+			{
+				posMap[v] = index;
+			}
+			else
+			{
+				index = posMap[v];
+			}
+
+			unique.indices[j] = index;
+		}
+
+		uniqueFace.push_back(unique);
+
+		Edge e1(unique.indices[0], unique.indices[1]);
+		Edge e2(unique.indices[1], unique.indices[2]);
+		Edge e3(unique.indices[2], unique.indices[0]);
+
+		neighborsMap[e1].push_back(i);
+		neighborsMap[e2].push_back(i);
+		neighborsMap[e3].push_back(i);
+	}
+
+	for (unsigned int i = 0;)
 }
 
 

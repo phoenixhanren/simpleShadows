@@ -143,7 +143,6 @@ struct CompareVectors
 	}
 };
 
-
 struct Face
 {
 	GLuint Indices[3];
@@ -744,7 +743,7 @@ void findAdjacencies(const vector<Face>& mesh, vector<unsigned int>& Indices)
 		Edge e1(i.Indices[0], i.Indices[1]);
 		Edge e2(i.Indices[1], i.Indices[2]);
 		Edge e3(i.Indices[2], i.Indices[0]);
-
+		//neighbor 共享一条边的三角形
 		indexMap[e1].AddNeigbor(index);
 		indexMap[e2].AddNeigbor(index);
 		indexMap[e3].AddNeigbor(index);

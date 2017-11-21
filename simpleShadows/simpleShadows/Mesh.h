@@ -17,11 +17,13 @@
 #include <string.h>
 #include <vector>
 
+
 #include "Shader.h"
 
 using std::string;
 using std::vector;
 using std::stringstream;
+
 
 struct Vertex
 {
@@ -30,10 +32,25 @@ struct Vertex
 	glm::vec2 TexCoords;
 };
 
-struct Texture {
+struct Texture
+{
 	unsigned int id;
 	std::string type;
 	aiString path;
+};
+
+struct Face
+{
+	unsigned int indices[3];
+};
+
+struct Edge
+{
+	Edge(unsigned int s, unsigned int e) {
+		indices[0] = s;
+		indices[1] = e;
+	}
+	unsigned int indices[2];
 };
 
 class Mesh {

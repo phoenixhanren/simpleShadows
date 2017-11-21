@@ -33,6 +33,7 @@ using std::move;
 using std::strcmp;
 using std::cout;
 using std::endl;
+using std::map;
 
 unsigned int TextureFromFile(const char * path, const string & directory, bool gamma = false);
 
@@ -56,6 +57,9 @@ private:
 	Mesh processMesh(aiMesh * mesh, const aiScene * scene, bool generateAdjacencies = false);
 	vector<Texture> loadMaterialTextures(aiMaterial * mat,
 		aiTextureType type, string typeName);
+
+	//生成邻接关系
+	void findAdjacencies(const aiMesh * mesh, vector<unsigned int> & ind);
 
 };
 #endif
