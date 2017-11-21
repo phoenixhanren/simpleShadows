@@ -48,11 +48,19 @@ void Model::Draw(Shader shader)
 {
 	for (unsigned int i = 0; i < meshes.size(); ++i)
 	{
-		meshes[i].Draw(shader);
+		if (generateAdjacencies)
+		{
+			meshes[i].Draw(shader, GL_TRIANGLES_ADJACENCY);
+		}
+		else
+		{
+			meshes[i].Draw(shader);
+		}
+		
 	}
 }
 
-void Model::loadModel(string path, bool generateAdjacencies = false)
+void Model::loadModel(string path)
 {
 	Assimp::Importer import;
 	const aiScene * scene = import.ReadFile(path,
@@ -66,24 +74,24 @@ void Model::loadModel(string path, bool generateAdjacencies = false)
 
 	directory = path.substr(0, path.find_last_of('/'));
 
-	processNode(scene->mRootNode, scene, generateAdjacencies);
+	processNode(scene->mRootNode, scene);
 }
 
-void Model::processNode(aiNode * node, const aiScene * scene, bool generateAdjacencies = false)
+void Model::processNode(aiNode * node, const aiScene * scene)
 {
 	for (unsigned int i = 0; i < node->mNumMeshes; ++i)
 	{
 		aiMesh * mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.push_back(processMesh(mesh, scene, generateAdjacencies));
+		meshes.push_back(processMesh(mesh, scene));
 	}
 
 	for (unsigned int i = 0; i < node->mNumChildren; ++i)
 	{
-		processNode(node->mChildren[i], scene, generateAdjacencies);
+		processNode(node->mChildren[i], scene);
 	}
 }
 
-Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene, bool generateAdjacencies = false)
+Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene)
 {
 	vector<Vertex> vertices;
 	vector<unsigned int> indices;
@@ -193,7 +201,7 @@ void Model::findAdjacencies(const aiMesh * mesh, vector<unsigned int>& ind)
 	{
 		const aiFace & face = mesh->mFaces[i];
 
-		Face unique;
+		Face unique(0, 0, 0);
 
 		for (unsigned int j = 0; j < 3; ++j)
 		{
@@ -223,7 +231,45 @@ void Model::findAdjacencies(const aiMesh * mesh, vector<unsigned int>& ind)
 		neighborsMap[e3].push_back(i);
 	}
 
-	for (unsigned int i = 0;)
+	for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
+	{
+		const Face & face = uniqueFace[i];
+
+		for (unsigned int j = 0; j < 3; ++j)
+		{
+			Edge e(face.indices[j], face.indices[(j + 1) % 3]);
+			vector<int> neighbors = neighborsMap[e];
+			unsigned int otherFaceInd = neighbors[0];
+			if (otherFaceInd == i)
+			{
+				otherFaceInd = neighbors[1];
+			}
+
+			const Face & otherFace = uniqueFace[otherFaceInd];
+
+			unsigned int oppoIndex;
+			bool hasSame = false;
+			for (unsigned int fInd : otherFace.indices)
+			{
+				for (unsigned int eInd : e.indices)
+				{
+					if (fInd == eInd)
+					{
+						hasSame = true;
+						break;
+					}
+				}
+				if (!hasSame)
+				{
+					oppoIndex = fInd;
+					break;
+				}
+			}
+			ind.push_back(face.indices[j]);
+			ind.push_back(oppoIndex);
+		}
+
+	}
 }
 
 

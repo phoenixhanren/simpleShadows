@@ -38,32 +38,32 @@ void drawModelVolumes();
 list<pair<glm::vec3, glm::vec3>> 
 slihouetteDetemination(const vector<GLfloat> &vertices, const glm::vec3 &lightPosition,const glm::mat4 &projection, const glm::mat4 &view, const glm::mat4 &model);
 
-struct Edge
-{
-	Edge(GLuint _a, GLuint _b)
-	{
-		assert(_a != _b);
-
-		if (_a < _b)
-		{
-			a = _a;
-			b = _b;
-		}
-		else
-		{
-			a = _b;
-			b = _a;
-		}
-	}
-
-	void Print()
-	{
-		printf("Edge %d %d\n", a, b);
-	}
-
-	GLuint a;
-	GLuint b;
-};
+//struct Edge
+//{
+//	Edge(GLuint _a, GLuint _b)
+//	{
+//		assert(_a != _b);
+//
+//		if (_a < _b)
+//		{
+//			a = _a;
+//			b = _b;
+//		}
+//		else
+//		{
+//			a = _b;
+//			b = _a;
+//		}
+//	}
+//
+//	void Print()
+//	{
+//		printf("Edge %d %d\n", a, b);
+//	}
+//
+//	GLuint a;
+//	GLuint b;
+//};
 
 struct Neighbors
 {
@@ -104,22 +104,6 @@ struct Neighbors
 	}
 };
 
-struct CompareEdges
-{
-	bool operator() (const Edge& Edge1, const Edge& Edge2)const
-	{
-		if (Edge1.a < Edge2.a) {
-			return true;
-		}
-		else if (Edge1.a == Edge2.a) {
-			return (Edge1.b < Edge2.b);
-		}
-		else {
-			return false;
-		}
-	}
-};
-
 
 struct CompareVectors
 {
@@ -143,31 +127,31 @@ struct CompareVectors
 	}
 };
 
-struct Face
-{
-	GLuint Indices[3];
-
-	Face(GLuint x, GLuint y, GLuint z) {
-		Indices[0] = x;
-		Indices[1] = y;
-		Indices[2] = z;
-	}
-
-	GLuint GetOppositeIndex(const Edge& e) const
-	{
-		for (GLuint i = 0; i < 3; i++) {
-			GLuint Index = Indices[i];
-
-			if (Index != e.a && Index != e.b) {
-				return Index;
-			}
-		}
-
-		assert(0);
-
-		return 0;
-	}
-};
+//struct Face
+//{
+//	GLuint Indices[3];
+//
+//	Face(GLuint x, GLuint y, GLuint z) {
+//		Indices[0] = x;
+//		Indices[1] = y;
+//		Indices[2] = z;
+//	}
+//
+//	GLuint GetOppositeIndex(const Edge& e) const
+//	{
+//		for (GLuint i = 0; i < 3; i++) {
+//			GLuint Index = Indices[i];
+//
+//			if (Index != e.a && Index != e.b) {
+//				return Index;
+//			}
+//		}
+//
+//		assert(0);
+//
+//		return 0;
+//	}
+//};
 void findAdjacencies(const vector<Face>& paiMesh, vector<unsigned int>& Indices);
 
 // settings
@@ -190,6 +174,8 @@ unsigned int planeVAO, planeVBO;
 unsigned int quadVAO, quadVBO;
 unsigned int cubeVAO, cubeVBO;
 unsigned int eleCubeVAO, eleCubeVBO, eleCubeEBO;
+//Model ourModel("D:/daily exercise/opengl/models/nanosuit/nanosuit.obj", true);
+Model ourModel("D:/daily exercise/opengl/models/monkey.ply", true);
 unsigned int woods;
 glm::vec3 cubePositions[3];
 GLfloat cubeVertices[] = {
@@ -543,7 +529,7 @@ void render()
 	deltaTime = currentFrame - lastFrame;
 	lastFrame = currentFrame;
 	double t = glfwGetTime();
-	//lightPos = glm::vec3(10.0f * sin(t), 10.0f , 10.0f * cos(t));
+	lightPos = glm::vec3(10.0f * sin(t), 10.0f , 10.0f * cos(t));
 	//清除缓冲区，包括模板缓冲
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -616,6 +602,7 @@ void render()
 		//glDrawElementsBaseVertex(GL_TRIANGLES_ADJACENCY, indi.size(),
 		//	GL_UNSIGNED_INT,)
 	}
+	ourModel.Draw(silhouetteShader);
 #pragma region silTest
 	silTestShader.use();
 	silTestShader.set_mat4("view", view);
@@ -736,13 +723,13 @@ list<pair<glm::vec3, glm::vec3>> slihouetteDetemination(const vector<GLfloat> &v
 void findAdjacencies(const vector<Face>& mesh, vector<unsigned int>& Indices)
 {
 	vector<Face> uniqueFaces;
-	map<Edge, Neighbors, CompareEdges> indexMap;
+	map<Edge, Neighbors> indexMap;
 	int index = 0;
 	for (auto &i : mesh)
 	{
-		Edge e1(i.Indices[0], i.Indices[1]);
-		Edge e2(i.Indices[1], i.Indices[2]);
-		Edge e3(i.Indices[2], i.Indices[0]);
+		Edge e1(i.indices[0], i.indices[1]);
+		Edge e2(i.indices[1], i.indices[2]);
+		Edge e3(i.indices[2], i.indices[0]);
 		//neighbor 共享一条边的三角形
 		indexMap[e1].AddNeigbor(index);
 		indexMap[e2].AddNeigbor(index);
@@ -754,11 +741,11 @@ void findAdjacencies(const vector<Face>& mesh, vector<unsigned int>& Indices)
 	{
 		for (int j = 0; j < 3; ++j)
 		{
-			Edge e(i.Indices[j], i.Indices[(j + 1) % 3]);
+			Edge e(i.indices[j], i.indices[(j + 1) % 3]);
 			Neighbors n = indexMap[e];
 			GLuint otherTri = n.GetOther(index);
 
-			Indices.push_back(i.Indices[j]);
+			Indices.push_back(i.indices[j]);
 			Indices.push_back(mesh[otherTri].GetOppositeIndex(e));
 
 		}

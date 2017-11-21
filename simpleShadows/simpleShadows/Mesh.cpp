@@ -1,6 +1,6 @@
 #include "Mesh.h"
 
-void Mesh::Draw(Shader shader)
+void Mesh::Draw(Shader shader, GLenum drawType)
 {
 	unsigned int diffuseNum = 1;
 	unsigned int specularNum = 1;
@@ -33,7 +33,7 @@ void Mesh::Draw(Shader shader)
 	glActiveTexture(GL_TEXTURE0);
 
 	glBindVertexArray(VAO);
-	glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(drawType, Indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 
 }

@@ -41,8 +41,8 @@ class Model
 {
 public:
 
-	Model(const char * path, bool generateAdjacencies = false) {
-		loadModel(path, generateAdjacencies);
+	Model(const char * path, bool generateAdjacencies = false) : generateAdjacencies(generateAdjacencies){
+		loadModel(path);
 	}
 
 	void Draw(Shader shader);
@@ -51,10 +51,11 @@ private:
 
 	vector<Texture> texturesLoaded;
 	string directory;
+	bool generateAdjacencies;
 
-	void loadModel(string path, bool generateAdjacencies = false);
-	void processNode(aiNode * node, const aiScene * scene, bool generateAdjacencies = false);
-	Mesh processMesh(aiMesh * mesh, const aiScene * scene, bool generateAdjacencies = false);
+	void loadModel(string path);
+	void processNode(aiNode * node, const aiScene * scene);
+	Mesh processMesh(aiMesh * mesh, const aiScene * scene);
 	vector<Texture> loadMaterialTextures(aiMaterial * mat,
 		aiTextureType type, string typeName);
 

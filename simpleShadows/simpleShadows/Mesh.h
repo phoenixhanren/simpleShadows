@@ -39,18 +39,76 @@ struct Texture
 	aiString path;
 };
 
-struct Face
-{
-	unsigned int indices[3];
-};
+
 
 struct Edge
 {
 	Edge(unsigned int s, unsigned int e) {
 		indices[0] = s;
 		indices[1] = e;
+		if (s > e)
+		{
+			indices[1] = s;
+			indices[0] = e;
+		}
+
 	}
 	unsigned int indices[2];
+
+	bool operator< (const Edge & right) const {
+		if (indices[0] < right.indices[0])
+		{
+			return true;
+		}
+
+		if (indices[0] == right.indices[0])
+		{
+			return indices[1] < right.indices[1];
+		}
+		return false;
+	}
+
+	bool operator> (const Edge & right) const {
+		return !(this->operator<(right));
+	}
+
+	bool operator==(const Edge & right) const {
+		return indices[0] == right.indices[0] && indices[1] == right.indices[1];
+	}
+
+	bool operator!= (const Edge &right) const {
+		return *this == right;
+	}
+
+};
+
+struct Face
+{
+	unsigned int indices[3];
+
+	Face(GLuint x, GLuint y, GLuint z) {
+		indices[0] = x;
+		indices[1] = y;
+		indices[2] = z;
+	}
+
+	GLuint GetOppositeIndex(const Edge& e) const
+	{
+		for (GLuint i = 0; i < 3; i++) {
+			GLuint Index = indices[i];
+
+			if (Index != e.indices[0] && Index != e.indices[1]) {
+				return Index;
+			}
+		}
+
+		assert(0);
+
+		return 0;
+	}
+
+
+
 };
 
 class Mesh {
@@ -69,7 +127,7 @@ public:
 	/*
 		»æÖÆÍø¸ñ
 	*/
-	void Draw(Shader shader);
+	void Draw(Shader shader, GLenum drawType = GL_TRIANGLES);
 
 	
 	unsigned int VAO;
