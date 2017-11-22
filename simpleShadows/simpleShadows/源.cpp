@@ -174,8 +174,9 @@ unsigned int planeVAO, planeVBO;
 unsigned int quadVAO, quadVBO;
 unsigned int cubeVAO, cubeVBO;
 unsigned int eleCubeVAO, eleCubeVBO, eleCubeEBO;
-//Model ourModel("D:/daily exercise/opengl/models/nanosuit/nanosuit.obj", true);
-Model ourModel("D:/daily exercise/opengl/models/monkey.ply", true);
+Model * ourModel;
+//Model ourModel("D:/daily exercise/opengl/models/nanosuit/nanosuit-Arms.obj", true);
+//Model ourModel("D:/daily exercise/opengl/models/monkey.ply", true);
 unsigned int woods;
 glm::vec3 cubePositions[3];
 GLfloat cubeVertices[] = {
@@ -289,13 +290,14 @@ int main()
 	silTestShader = Shader("Shaders//silhouetteShader.vs", "Shaders//silhouetteShader.fs");
 	lightShader = Shader("Shaders//lightShader.vs", "Shaders//lightShader.fs");
 	volumeShader = Shader("Shaders//shadowVolume.vs", "Shaders//shadowVolume.fs", "Shaders//shadowVolume.gs");
+	ourModel =  new Model("D:/daily exercise/opengl/models/monkey.ply", true);
 	while (!glfwWindowShouldClose(window))
 	{
 		render();
 	}
 
 	clean();
-	
+	delete ourModel;
 	return 0;
 }
 
@@ -529,7 +531,7 @@ void render()
 	deltaTime = currentFrame - lastFrame;
 	lastFrame = currentFrame;
 	double t = glfwGetTime();
-	lightPos = glm::vec3(10.0f * sin(t), 10.0f , 10.0f * cos(t));
+	//lightPos = glm::vec3(10.0f * sin(t), 10.0f , 10.0f * cos(t));
 	//Çå³ý»º³åÇø£¬°üÀ¨Ä£°å»º³å
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -563,11 +565,8 @@ void render()
 		model = glm::translate(model, cubePositions[i]);
 		shadowShader.set_mat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-		
 		//silhouetteEdges.splice(silhouetteEdges.end(), slihouetteDetemination(cubeVectors, lightPos, projection, view, model));
-
 	}
-
 	lightShader.use();
 	lightShader.set_mat4("projection", projection);
 	lightShader.set_mat4("view", view);
@@ -576,6 +575,17 @@ void render()
 	model = glm::translate(model, lightPos);
 	lightShader.set_mat4("model", model);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+	shadowShader.use();
+	model = glm::mat4();
+	model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
+	shadowShader.set_mat4("projection", projection);
+	shadowShader.set_mat4("view", view);
+	shadowShader.set_mat4("model", model);
+	shadowShader.set_vec3("lightPos", lightPos);
+	shadowShader.set_vec3("viewPos", camera.Position);
+	ourModel->Draw(shadowShader);
+
 
 	glm::vec3 tempLightPos = projection * view * glm::vec4(lightPos, 1.0f);
 
@@ -602,7 +612,10 @@ void render()
 		//glDrawElementsBaseVertex(GL_TRIANGLES_ADJACENCY, indi.size(),
 		//	GL_UNSIGNED_INT,)
 	}
-	ourModel.Draw(silhouetteShader);
+	model = glm::mat4();
+	model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
+	silhouetteShader.set_mat4("model", model);
+	ourModel->Draw(silhouetteShader);
 #pragma region silTest
 	silTestShader.use();
 	silTestShader.set_mat4("view", view);

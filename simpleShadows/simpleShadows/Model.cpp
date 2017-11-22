@@ -103,8 +103,15 @@ Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene)
 		// pos norm tex
 		vertex.Position = glm::vec3(mesh->mVertices[i].x,
 			mesh->mVertices[i].y, mesh->mVertices[i].z);
-		vertex.Normal = glm::vec3(mesh->mNormals[i].x,
-			mesh->mNormals[i].y, mesh->mNormals[i].z);
+		if (mesh->mNormals != NULL)
+		{
+			vertex.Normal = glm::vec3(mesh->mNormals[i].x,
+				mesh->mNormals[i].y, mesh->mNormals[i].z);
+		}
+		else
+		{
+
+		}
 		if (mesh->mTextureCoords[0])
 		{
 			glm::vec2 vec;

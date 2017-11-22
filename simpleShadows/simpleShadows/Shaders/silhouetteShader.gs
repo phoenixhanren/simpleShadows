@@ -5,7 +5,6 @@ layout (triangle_strip, max_vertices = 18) out;
 
 in vec3 worldPos[];
 
-
 uniform vec3 lightPos;
 uniform vec3 finalLightPos;
 //vec3 lightDirt = vec3(-0.2f, -1.0f, -0.3f);
@@ -60,12 +59,12 @@ void main()
     vec3 e6 = worldPos[5] - worldPos[0];
 
     //e1, e2
-    vec3 normal = cross(e1, e2);
-    vec3 lightDir = lightPos - worldPos[0];
+    vec3 normal = normalize(cross(e1, e2));
+    vec3 lightDir = normalize(lightPos - worldPos[0]);
 
     if (dot(normal, lightDir) > 0)
     {
-        normal = cross(e3, e1);
+        normal = normalize(cross(e3, e1));
 
         if (dot(normal, lightDir) <= 0.0)
         {
@@ -75,8 +74,8 @@ void main()
             EmitQuad(0, 2);
         }
 
-        normal = cross(e4, e5);
-        lightDir = lightPos - worldPos[2];
+        normal = normalize(cross(e4, e5));
+        lightDir = normalize(lightPos - worldPos[2]);
 
         if (dot(normal, lightDir) <= 0.0)
         {
@@ -86,8 +85,8 @@ void main()
             EmitQuad(2, 4);
         }
 
-        normal = cross(e2, e6);
-        lightDir = lightPos - worldPos[4];     
+        normal = normalize(cross(e2, e6));
+        lightDir = normalize(lightPos - worldPos[4]);     
 
         if (dot(normal, lightDir) <= 0.0)
         {
