@@ -2,11 +2,15 @@
 
 layout (triangles_adjacency) in;
 layout (triangle_strip, max_vertices = 18) out;
+//layout (line_strip, max_vertices = 12) out;
 
 in vec3 worldPos[];
 
 uniform vec3 lightPos;
 uniform vec3 finalLightPos;
+
+float EPSILON = 0.00001;
+
 //vec3 lightDirt = vec3(-0.2f, -1.0f, -0.3f);
 void EmitLine(int startIndex, int endIndex)
 {
@@ -32,24 +36,21 @@ void EmitLines(int index)
 
 void EmitQuad(int startIndex, int endIndex)
 {
+    vec3 startDir = normalize(gl_in[startIndex].gl_Position.xyz - finalLightPos);
+    vec3 endDir = normalize(gl_in[endIndex].gl_Position.xyz - finalLightPos);
     gl_Position = gl_in[startIndex].gl_Position;
     EmitVertex();
     gl_Position = gl_in[endIndex].gl_Position;
     EmitVertex();
-
-    vec3 startDir = normalize(gl_in[startIndex].gl_Position.xyz - finalLightPos);
-    vec3 endDir = normalize(gl_in[endIndex].gl_Position.xyz - finalLightPos);
     gl_Position = vec4(startDir, 0.0f);
     EmitVertex();
     gl_Position = vec4(endDir, 0.0f);
     EmitVertex();
     EndPrimitive();
-
 }
 
 void main()
 {
-
 
     vec3 e1 = worldPos[2] - worldPos[0];
     vec3 e2 = worldPos[4] - worldPos[0];
@@ -95,6 +96,31 @@ void main()
             //EmitLines(4);
             EmitQuad(4, 0);
         }
+        // lightDir = normalize(gl_in[0].gl_Position.xyz - finalLightPos);
+        // gl_Position = vec4(gl_in[0].gl_Position.xyz + lightDir * EPSILON, 1.0f);
+        // EmitVertex();
+
+        // lightDir = normalize(gl_in[2].gl_Position.xyz - finalLightPos);
+        // gl_Position = vec4(gl_in[2].gl_Position.xyz + lightDir * EPSILON, 1.0f);
+        // EmitVertex();
+
+        // lightDir = normalize(gl_in[4].gl_Position.xyz - finalLightPos);
+        // gl_Position = vec4(gl_in[4].gl_Position.xyz + lightDir * EPSILON, 1.0f);
+        // EmitVertex();
+        // EndPrimitive();
+
+        // lightDir = normalize(gl_in[0].gl_Position.xyz - finalLightPos);
+        // gl_Position = vec4(lightDir, 0.0f);
+        // EmitVertex();
+
+        // lightDir = normalize(gl_in[4].gl_Position.xyz - finalLightPos);
+        // gl_Position = vec4(lightDir, 0.0f);
+        // EmitVertex();
+
+        // lightDir = normalize(gl_in[2].gl_Position.xyz - finalLightPos);
+        // gl_Position = vec4(lightDir, 0.0f);
+        // EmitVertex();
+        // EndPrimitive();   
 
     }
     EndPrimitive();

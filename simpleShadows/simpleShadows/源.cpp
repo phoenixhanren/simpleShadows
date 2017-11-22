@@ -595,7 +595,7 @@ void render()
 	silhouetteShader.set_vec3("lightPos", lightPos);
 	silhouetteShader.set_vec3("finalLightPos", tempLightPos);
 	glDepthFunc(GL_LEQUAL);
-	glLineWidth(5.0f);
+	glLineWidth(1.0f);
 	glBindVertexArray(eleCubeVAO);
 
 	for (unsigned int i = 0; i != cubePositions->length(); ++i)
@@ -617,47 +617,48 @@ void render()
 	silhouetteShader.set_mat4("model", model);
 	ourModel->Draw(silhouetteShader);
 #pragma region silTest
-	silTestShader.use();
-	silTestShader.set_mat4("view", view);
-	silTestShader.set_mat4("projection", projection);
-	for (unsigned int i = 0; i != cubePositions->length(); ++i)
-	{
-		model = glm::mat4();
-		model = glm::translate(model, cubePositions[i]);
-		silTestShader.set_mat4("model", model);
-		//glDrawArrays(GL_TRIANGLES_ADJACENCY, 0, 36);
-		//glDrawElementsBaseVertex(GL_TRIANGLES, indi.size(), GL_UNSIGNED_INT, (void *)0
-		//	, 0);
-		//silhouetteEdges.splice(silhouetteEdges.end(), slihouetteDetemination(cubeVectors, lightPos, projection, view, model));
-		//glDrawElements(GL_TRIANGLES, indi.size(), GL_UNSIGNED_INT, 0);
-		//glDrawElementsBaseVertex(GL_TRIANGLES_ADJACENCY, indi.size(),
-		//	GL_UNSIGNED_INT,)
-	}
+	//silTestShader.use();
+	//silTestShader.set_mat4("view", view);W
+	//silTestShader.set_mat4("projection", projection);
+	//for (unsigned int i = 0; i != cubePositions->length(); ++i)
+	//{
+	//	model = glm::mat4();
+	//	model = glm::translate(model, cubePositions[i]);
+	//	silTestShader.set_mat4("model", model);
+	//	//glDrawArrays(GL_TRIANGLES_ADJACENCY, 0, 36);
+	//	//glDrawElementsBaseVertex(GL_TRIANGLES, indi.size(), GL_UNSIGNED_INT, (void *)0
+	//	//	, 0);
+	//	//silhouetteEdges.splice(silhouetteEdges.end(), slihouetteDetemination(cubeVectors, lightPos, projection, view, model));
+	//	//glDrawElements(GL_TRIANGLES, indi.size(), GL_UNSIGNED_INT, 0);
+	//	//glDrawElementsBaseVertex(GL_TRIANGLES_ADJACENCY, indi.size(),
+	//	//	GL_UNSIGNED_INT,)
+	//}
 
 #pragma endregion
 	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	//glLineWidth(1.0f);
 	//glEnable(GL_DEPTH_CLAMP);
-	volumeShader.use();
-	volumeShader.set_vec3("lightPos", lightPos);
-	volumeShader.set_mat4("view", view);
-	volumeShader.set_mat4("projection", projection);
+
+	//volumeShader.use();
+	//volumeShader.set_vec3("lightPos", lightPos);
+	//volumeShader.set_mat4("view", view);
+	//volumeShader.set_mat4("projection", projection);
 	glDepthFunc(GL_LESS);
-	for (unsigned int i = 0; i != cubePositions->length(); ++i)
-	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eleCubeEBO);
-		model = glm::mat4();
-		model = glm::translate(model, cubePositions[i]);
-		volumeShader.set_mat4("model", model);
-		//glDrawArrays(GL_TRIANGLES_ADJACENCY, 0, 36);
-		//glDrawElementsBaseVertex(GL_TRIANGLES_ADJACENCY, indi.size(), GL_UNSIGNED_INT, (void *)0
-		//	,0);
-		//silhouetteEdges.splice(silhouetteEdges.end(), slihouetteDetemination(cubeVectors, lightPos, projection, view, model));
-		//glDrawElements(GL_TRIANGLES_ADJACENCY, indi.size(), GL_UNSIGNED_INT, 0);
-		//glDrawElementsBaseVertex(GL_TRIANGLES_ADJACENCY, indi.size(),
-		//	GL_UNSIGNED_INT,)
-	}
+	//for (unsigned int i = 0; i != cubePositions->length(); ++i)
+	//{
+	//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eleCubeEBO);
+	//	model = glm::mat4();
+	//	model = glm::translate(model, cubePositions[i]);
+	//	volumeShader.set_mat4("model", model);
+	//	//glDrawArrays(GL_TRIANGLES_ADJACENCY, 0, 36);
+	//	//glDrawElementsBaseVertex(GL_TRIANGLES_ADJACENCY, indi.size(), GL_UNSIGNED_INT, (void *)0
+	//	//	,0);
+	//	//silhouetteEdges.splice(silhouetteEdges.end(), slihouetteDetemination(cubeVectors, lightPos, projection, view, model));
+	//	//glDrawElements(GL_TRIANGLES_ADJACENCY, indi.size(), GL_UNSIGNED_INT, 0);
+	//	//glDrawElementsBaseVertex(GL_TRIANGLES_ADJACENCY, indi.size(),
+	//	//	GL_UNSIGNED_INT,)
+	//}
 
 	//glDisable(GL_DEPTH_CLAMP);
 
