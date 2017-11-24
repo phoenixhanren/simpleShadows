@@ -38,7 +38,7 @@ void EmitQuad(int startIndex, int endIndex)
 {
     vec3 startDir = normalize(gl_in[startIndex].gl_Position.xyz - finalLightPos);
     vec3 endDir = normalize(gl_in[endIndex].gl_Position.xyz - finalLightPos);
-    gl_Position = gl_in[startIndex].gl_Position;
+    gl_Position = vec4(gl_in[startIndex].gl_Position.xyz, gl_in[startIndex].gl_Position.w);
     EmitVertex();
     gl_Position = gl_in[endIndex].gl_Position;
     EmitVertex();
