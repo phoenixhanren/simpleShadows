@@ -3,128 +3,84 @@
 layout (triangles_adjacency) in;
 layout (triangle_strip, max_vertices = 18) out;
 
-in vec3 worldPos[];
-in vec3 lightWorldPos;
-in mat4 v;
-in mat4 p;
-in mat4 m;
+//in vec3 worldPos[];
 
-float EPSILON = 0.0001;
+uniform vec3 lightPos; //light position in world space
+uniform mat4 view;
+uniform mat4 projection;
 
-void EmitQuad2(int startIndex, int endIndex)
+float EPSILON = 0.00001;
+
+// calculating in world space, then mult view and projection matrix
+void EmitQuad(int startIndex, int endIndex)
 {
-    vec3 startVertex = gl_in[startIndex].gl_Position.xyz;
-    vec3 endVertex = gl_in[endIndex].gl_Position.xyz;
-    vec3 lightDir = normalize(startVertex - lightWorldPos);
-    gl_Position = p * v * vec4((startVertex + lightDir * EPSILON), 1.0);
+    vec3 startDirWorld = normalize(gl_in[startIndex].gl_Position.xyz - lightPos);
+    vec3 endDirWorld = normalize(gl_in[endIndex].gl_Position.xyz - lightPos);
+    gl_Position = projection * view * vec4(gl_in[startIndex].gl_Position.xyz + EPSILON * startDirWorld,
+        1.0f);
     EmitVertex();
 
-    gl_Position = p * v * vec4(lightDir, 0.0f);
+    gl_Position = projection * view * vec4(gl_in[endIndex].gl_Position.xyz + EPSILON * endDirWorld,
+        1.0f);
     EmitVertex();
 
+    gl_Position = projection * view * vec4(startDirWorld, 0.0f);
+    EmitVertex();
+
+    gl_Position = projection * view * vec4(endDirWorld, 0.0f);
+    EmitVertex();
+    
     EndPrimitive();
-    lightDir = normalize(endVertex - lightWorldPos);
-    gl_Position = p * v * vec4((endVertex + lightDir * EPSILON), 1.0);
-    EmitVertex();
 
-    gl_Position = p * v * vec4(lightDir, 0.0f);
-    EmitVertex();
-
-    EndPrimitive();
-}
-
-void EmitQuad(vec3 startVertex, vec3 endVertex)
-{
-    vec3 lightDir = normalize(startVertex - lightWorldPos);
-    gl_Position = p * v * vec4((startVertex + lightDir * EPSILON), 1.0);
-    EmitVertex();
-
-    gl_Position = p * v * vec4(lightDir, 0.0f);
-    EmitVertex();
-
-    lightDir = normalize(endVertex - lightWorldPos);
-    gl_Position = p * v * vec4((endVertex + lightDir * EPSILON), 1.0);
-    EmitVertex();
-
-    gl_Position = p * v * vec4(lightDir, 0.0f);
-    EmitVertex();
-
-    EndPrimitive();
 }
 
 void main()
 {
-    vec3 e1 = worldPos[2] - worldPos[0];
-    vec3 e2 = worldPos[4] - worldPos[0];
-    vec3 e3 = worldPos[1] - worldPos[0];
-    vec3 e4 = worldPos[3] - worldPos[2];
-    vec3 e5 = worldPos[4] - worldPos[2];
-    vec3 e6 = worldPos[5] - worldPos[0];
+    //vec3 e1 = worldPos[2] - worldPos[0];
+    //vec3 e2 = worldPos[4] - worldPos[0];
+    //vec3 e3 = worldPos[1] - worldPos[0];
+    //vec3 e4 = worldPos[3] - worldPos[2];
+    //vec3 e5 = worldPos[4] - worldPos[2];
+    //vec3 e6 = worldPos[5] - worldPos[0];
+    vec3 e1 = gl_in[2].gl_Position.xyz - gl_in[0].gl_Position.xyz;
+    vec3 e2 = gl_in[4].gl_Position.xyz - gl_in[0].gl_Position.xyz;
+    vec3 e3 = gl_in[1].gl_Position.xyz - gl_in[0].gl_Position.xyz;
+    vec3 e4 = gl_in[3].gl_Position.xyz - gl_in[2].gl_Position.xyz;
+    vec3 e5 = gl_in[4].gl_Position.xyz - gl_in[2].gl_Position.xyz;
+    vec3 e6 = gl_in[5].gl_Position.xyz - gl_in[0].gl_Position.xyz;
 
+    vec3 lightDir = normalize(lightPos - gl_in[0].gl_Position.xyz);
+
+    //face normal
     vec3 normal = normalize(cross(e1, e2));
-    vec3 lightDir = normalize(lightWorldPos - worldPos[0]);
-
+    //is this face not in the shadow
     if (dot(normal, lightDir) > 0)
     {
         normal = normalize(cross(e3, e1));
 
+        //is e1 the silhouette
         if (dot(normal, lightDir) <= 0.0)
         {
-            vec3 startVertex = worldPos[0];
-            vec3 endVertex = worldPos[2];
-            //EmitQuad(startVertex, endVertex);
-            EmitQuad2(0, 2);
+            EmitQuad(0, 2);
         }
 
-        normal = cross(e4, e5);
-        lightDir = normalize(lightWorldPos - worldPos[2]);
+        normal = normalize(cross(e4, e5));
+        lightDir = normalize(lightPos - gl_in[2].gl_Position.xyz);
 
+        //is e5 the silhouette
         if (dot(normal, lightDir) <= 0.0)
         {
-            vec3 startVertex = worldPos[2];
-            vec3 endVertex = worldPos[4];
-            //EmitQuad(startVertex, endVertex);
-            EmitQuad2(2, 4);
+            EmitQuad(2, 4);
         }
 
-        normal = cross(e2, e6);
-        lightDir = normalize(lightWorldPos - worldPos[4]);
+        normal = normalize(cross(e2, e6));
+        lightDir = normalize(lightPos - gl_in[4].gl_Position.xyz);
 
+        //is e2 the silhouette
         if (dot(normal, lightDir) <= 0.0)
         {
-            vec3 startVertex = worldPos[4];
-            vec3 endVertex = worldPos[0];
-            //EmitQuad(startVertex, endVertex);
-            EmitQuad2(4, 0);
+            EmitQuad(4, 0);
         }
-
-        //lightDir = (normalize(worldPos[0] - lightWorldPos));
-       /// gl_Position = p * v  * vec4((worldPos[0] + lightDir * EPSILON), 1.0f);
-        //EmitVertex();
-
-        //lightDir = (normalize(worldPos[2] - lightWorldPos));
-        //gl_Position = p * v * vec4((worldPos[2] + lightDir * EPSILON), 1.0f);
-        //EmitVertex();
-        
-        //lightDir = (normalize(worldPos[4] - lightWorldPos));
-        //gl_Position = p * v  * vec4((worldPos[4] + lightDir * EPSILON), 1.0f);
-        //EmitVertex();
-
-       // EndPrimitive();
-
-        //lightDir = (normalize(worldPos[0] - lightWorldPos));
-        //gl_Position = p * v * vec4(lightDir , 0.0f);
-        //EmitVertex();
-
-        //lightDir = (normalize(worldPos[4] - lightWorldPos));
-        //gl_Position = p * v * vec4(lightDir , 0.0f);
-        //EmitVertex();
-        
-        //lightDir = (normalize(worldPos[2] - lightWorldPos));
-       // gl_Position = p * v  * vec4(lightDir , 0.0f);
-        //EmitVertex();
-
-        //EndPrimitive();    
     }
 
 }

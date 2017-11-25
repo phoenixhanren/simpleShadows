@@ -565,6 +565,7 @@ void render()
 		model = glm::translate(model, cubePositions[i]);
 		shadowShader.set_mat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
+		
 		//silhouetteEdges.splice(silhouetteEdges.end(), slihouetteDetemination(cubeVectors, lightPos, projection, view, model));
 	}
 	lightShader.use();
