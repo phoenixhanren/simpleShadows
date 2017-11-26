@@ -9,7 +9,7 @@ in vec3 worldPos[];
 uniform vec3 lightPos;
 uniform vec3 finalLightPos;
 
-float EPSILON = 0.00001;
+float EPSILON = 0.0001;
 
 //vec3 lightDirt = vec3(-0.2f, -1.0f, -0.3f);
 void EmitLine(int startIndex, int endIndex)
@@ -101,15 +101,15 @@ void main()
             EmitQuad(4, 0);
         }
         lightDir = normalize(gl_in[0].gl_Position.xyz - finalLightPos);
-        gl_Position = vec4(gl_in[0].gl_Position.xyz + lightDir * EPSILON, gl_in[0].gl_Position.w);
+        gl_Position = vec4(gl_in[0].gl_Position.xyz + lightDir  * EPSILON, gl_in[0].gl_Position.w);
         EmitVertex();
 
         lightDir = normalize(gl_in[2].gl_Position.xyz - finalLightPos);
-        gl_Position = vec4(gl_in[2].gl_Position.xyz + lightDir * EPSILON, gl_in[2].gl_Position.w);
+        gl_Position = vec4(gl_in[2].gl_Position.xyz + lightDir  * EPSILON, gl_in[2].gl_Position.w);
         EmitVertex();
 
         lightDir = normalize(gl_in[4].gl_Position.xyz - finalLightPos);
-        gl_Position = vec4(gl_in[4].gl_Position.xyz + lightDir * EPSILON, gl_in[4].gl_Position.w);
+        gl_Position = vec4(gl_in[4].gl_Position.xyz + lightDir  * EPSILON, gl_in[4].gl_Position.w);
         EmitVertex();
         EndPrimitive();
 

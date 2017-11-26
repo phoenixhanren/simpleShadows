@@ -11,7 +11,6 @@ uniform sampler2D diffuseTexture;
 
 uniform vec3 lightPos;
 uniform vec3 viewPos;
-vec3 lightDirt = vec3(10.0f, 10.0f, 10.0f);
 void main()
 {
     vec3 color = texture(diffuseTexture, fs_in.TexCoords).rgb;

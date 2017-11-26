@@ -9,7 +9,7 @@ uniform vec3 lightPos; //light position in world space
 uniform mat4 view;
 uniform mat4 projection;
 
-float EPSILON = 0.00001;
+float EPSILON = 0.1;
 
 // calculating in world space, then mult view and projection matrix
 void EmitQuad(int startIndex, int endIndex)
@@ -81,6 +81,40 @@ void main()
         {
             EmitQuad(4, 0);
         }
-    }
 
+        //front capping
+        lightDir = normalize(gl_in[0].gl_Position.xyz - lightPos);
+        gl_Position = projection * view *
+            vec4(gl_in[0].gl_Position.xyz + lightDir  * EPSILON, 1.0f);
+        EmitVertex();
+
+        lightDir = normalize(gl_in[2].gl_Position.xyz - lightPos);
+        gl_Position = projection * view *
+            vec4(gl_in[2].gl_Position.xyz + lightDir  * EPSILON, 1.0f);        
+        EmitVertex();
+
+        lightDir = normalize(gl_in[4].gl_Position.xyz - lightPos);
+        gl_Position = projection * view *
+            vec4(gl_in[4].gl_Position.xyz + lightDir * EPSILON, 1.0f);
+        EmitVertex();
+        EndPrimitive();
+
+        //back capping
+        lightDir = normalize(gl_in[0].gl_Position.xyz - lightPos);
+        gl_Position = projection * view * vec4(lightDir, 0.0f);
+        EmitVertex();
+        EndPrimitive();
+
+        lightDir = normalize(gl_in[4].gl_Position.xyz - lightPos);
+        gl_Position = projection * view * vec4(lightDir, 0.0f);
+        EmitVertex();
+        EndPrimitive();
+
+        lightDir = normalize(gl_in[2].gl_Position.xyz - lightPos);
+        gl_Position = projection * view * vec4(lightDir, 0.0f);
+        EmitVertex();
+        EndPrimitive();
+
+    }
+    //EndPrimitive();
 }

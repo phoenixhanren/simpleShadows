@@ -52,5 +52,13 @@
     <None Include="Shaders\silhouetteShader.fs" />
     <None Include="Shaders\silhouetteShader.gs" />
     <None Include="Shaders\silhouetteShader.vs" />
+    <None Include="Shaders\lightShader.fs" />
+    <None Include="Shaders\lightShader.vs" />
+    <None Include="Shaders\shadowShader.gs" />
+    <None Include="Shaders\shadowVolume.fs" />
+    <None Include="Shaders\shadowVolume.gs" />
+    <None Include="Shaders\shadowVolume.vs" />
+    <None Include="Shaders\depthShader.fs" />
+    <None Include="Shaders\depthShader.vs" />
   </ItemGroup>
 </Project>
