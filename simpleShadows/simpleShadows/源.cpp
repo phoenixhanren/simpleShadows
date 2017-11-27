@@ -122,6 +122,8 @@ unsigned int planeVAO, planeVBO;
 unsigned int quadVAO, quadVBO;
 unsigned int cubeVAO, cubeVBO;
 unsigned int eleCubeVAO, eleCubeVBO, eleCubeEBO;
+unsigned int depthBuf, ambBuf, diffSpecTex, fsQuad;
+unsigned int colorDepthFBO;
 Model * ourModel;
 unsigned int woods;
 glm::vec3 cubePositions[3];
@@ -433,8 +435,69 @@ void setup()
 #pragma endregion
 
 	woods = TextureFromFile("wood.png", "D:\\daily exercise\\opengl\\simpleShadows\\simpleShadows\\Debug");
+	
+#pragma region FBO
+	// The depth buffer
+	glGenRenderbuffers(1, &depthBuf);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthBuf);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
+
+	// The ambient buffer
+	glGenRenderbuffers(1, &ambBuf);
+	glBindRenderbuffer(GL_RENDERBUFFER, ambBuf);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA, SCR_WIDTH, SCR_HEIGHT);
+
+	// The diffuse+specular component
+	glActiveTexture(GL_TEXTURE0);
+	glGenTextures(1, &diffSpecTex);
+	glBindTexture(GL_TEXTURE_2D, diffSpecTex);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, SCR_WIDTH, SCR_HEIGHT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// Create and set up the FBO
+	glGenFramebuffers(1, &colorDepthFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, colorDepthFBO);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuf);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, ambBuf);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, diffSpecTex, 0);
+
+	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+	glDrawBuffers(2, drawBuffers);
+
+	GLenum result = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (result == GL_FRAMEBUFFER_COMPLETE) {
+		printf("Framebuffer is complete.\n");
+	}
+	else {
+		printf("Framebuffer is not complete.\n");
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+#pragma endregion
+
+	// Set up a  VAO for the full-screen quad
+	GLfloat verts[] = { -1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f,
+		1.0f, 1.0f, 0.0f, -1.0f, 1.0f, 0.0f };
+	GLuint bufHandle;
+	glGenBuffers(1, &bufHandle);
+	glBindBuffer(GL_ARRAY_BUFFER, bufHandle);
+	glBufferData(GL_ARRAY_BUFFER, 4 * 3 * sizeof(GLfloat), verts, GL_STATIC_DRAW);
+
+	// Set up the vertex array object
+	glGenVertexArrays(1, &fsQuad);
+	glBindVertexArray(fsQuad);
+
+	glBindBuffer(GL_ARRAY_BUFFER, bufHandle);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);  // Vertex position
+
+	glBindVertexArray(0);
 
 }
+
+
 
 void render()
 {
@@ -444,95 +507,17 @@ void render()
 	double t = glfwGetTime();
 	glm::mat4 model;
 	glm::mat4 view = camera.GetViewMatrix();
-	glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),
-		(float)SCR_WIDTH / SCR_HEIGHT, 1.0f, 100.0f);
+	lightPos = glm::vec3(10.0f * sin(t), 10.0f, 10.0f * cos(t));
+	//glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),
+	//	(float)SCR_WIDTH / SCR_HEIGHT, 1.0f, 100.0f);
+	glm::mat4 projection = glm::infinitePerspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / SCR_HEIGHT, 1.0f);
 
+#pragma region pass1
+	glDepthMask(GL_TRUE);
+	glDisable(GL_STENCIL_TEST);
 	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-
-	//lightPos = glm::vec3(10.0f * sin(t), 10.0f , 10.0f * cos(t));
-	//Çå³ý»º³åÇø£¬°üÀ¨Ä£°å»º³å
-	glDepthMask(GL_TRUE);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	//render scene into depth
-	//glDrawBuffer(GL_NONE);
-	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-	depthShader.use();
-	depthShader.set_mat4("view", view);
-	depthShader.set_mat4("projection", projection);
-	depthShader.set_mat4("model", model);
-	glBindVertexArray(planeVAO);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-	glBindVertexArray(cubeVAO);
-	for (unsigned int i = 0; i != cubePositions->length(); ++i)
-	{
-		model = glm::mat4();
-		model = glm::translate(model, cubePositions[i]);
-		depthShader.set_mat4("model", model);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-	}
-	model = glm::mat4();
-	model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
-	depthShader.set_mat4("model", model);
-	//ourModel->Draw(depthShader);
-
-#pragma region comment
-	//render shadow volume into stencil
-	glEnable(GL_STENCIL_TEST);
-	glDepthMask(GL_FALSE);
-	//glDisable(GL_DEPTH_TEST);
-	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-	glEnable(GL_DEPTH_CLAMP);
-	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	glDisable(GL_CULL_FACE);
-	glStencilFunc(GL_ALWAYS, 0, 0xFF);
-	glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
-	glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
-	//glm::mat4 inProjection = projection;
-	//for (int i = 0; i < 4; ++i)
-	//{
-	//	for (int j = 0; j < 4; ++j)
-	//	{
-	//		cout << inProjection[i][j] << " ";
-	//	}
-	//	cout << endl;
-	//}
-	//cout << "============" << endl;
-	volumeShader.use();
-	volumeShader.set_mat4("projection", projection);
-	volumeShader.set_mat4("view", view);
-	volumeShader.set_vec3("lightPos", lightPos);
-	volumeShader.set_float("volumeBound", volumeBound);
-	glBindVertexArray(eleCubeVAO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eleCubeEBO);
-	for (unsigned int i = 0; i != cubePositions->length(); ++i)
-	{		
-		model = glm::mat4();
-		model = glm::translate(model, cubePositions[i]);
-		volumeShader.set_mat4("model", model);
-		glDrawElements(GL_TRIANGLES_ADJACENCY, indi.size(), GL_UNSIGNED_INT, 0);
-	}
-	model = glm::mat4();
-	model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
-	volumeShader.set_mat4("model", model);
-	//ourModel->Draw(volumeShader);
-	glBindVertexArray(0);
-
-	glDisable(GL_DEPTH_CLAMP);
-	glEnable(GL_CULL_FACE);
-
-	//render shadowedscene
-	//glDrawBuffer(GL_BACK);
-	glDepthMask(GL_TRUE);
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glStencilFunc(GL_EQUAL, 0x0, 0xFF);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-	//glEnable(GL_POLYGON_OFFSET_FILL);
-	//glStencilOpSeparate(GL_BACK, GL_KEEP, GL_KEEP, GL_KEEP);
-
-
-	model = glm::mat4();
+	glBindFramebuffer(GL_FRAMEBUFFER, colorDepthFBO);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	shadowShader.use();
 	shadowShader.set_mat4("projection", projection);
 	shadowShader.set_mat4("view", view);
@@ -553,44 +538,89 @@ void render()
 		shadowShader.set_mat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
-	model = glm::mat4();
-	model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
-	shadowShader.set_mat4("model", model);
+	//model = glm::mat4();
+	//model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
+	//shadowShader.set_mat4("model", model);
 	//glDisable(GL_POLYGON_OFFSET_FILL);
 	//ourModel->Draw(shadowShader);
-	
-	glDisable(GL_STENCIL_TEST);
+#pragma endregion
 
-	//render ambientlight
-	//glEnable(GL_BLEND);
-	//glBlendEquation(GL_FUNC_ADD);
-	//glBlendFunc(GL_ONE, GL_ONE);
-	model = glm::mat4();
-	ambientShader.use();
-	ambientShader.set_mat4("projection", projection);
-	ambientShader.set_mat4("view", view);
-	ambientShader.set_mat4("model", model);
-	ambientShader.set_vec3("lightPos", lightPos);
-	ambientShader.set_vec3("viewPos", camera.Position);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, woods);
-	ambientShader.set_int("diffuseTexture", 0);
-	glBindVertexArray(planeVAO);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-	glBindVertexArray(cubeVAO);
+#pragma region pass2
+	volumeShader.use();
+	volumeShader.set_mat4("projection", projection);
+	volumeShader.set_mat4("view", view);
+	volumeShader.set_vec3("lightPos", lightPos);
+	volumeShader.set_float("volumeBound", volumeBound);
 
+	// Copy the depth and color buffers from the FBO into the default FBO
+	// The color buffer should contain the ambient component.
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, colorDepthFBO);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	glBlitFramebuffer(0, 0, SCR_WIDTH - 1, SCR_HEIGHT - 1, 0, 0, SCR_WIDTH - 1, SCR_HEIGHT - 1, GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+	// Disable writing to the color buffer and depth buffer
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	glDepthMask(GL_FALSE);
+
+	// Re-bind to the default framebuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	// Set up the stencil test so that it always succeeds, increments
+	// for front faces, and decrements for back faces.
+	glClear(GL_STENCIL_BUFFER_BIT);
+	glEnable(GL_STENCIL_TEST);
+	glStencilFunc(GL_ALWAYS, 0, 0xffff);
+	glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_KEEP, GL_INCR_WRAP);
+	glStencilOpSeparate(GL_BACK, GL_KEEP, GL_KEEP, GL_DECR_WRAP);
+
+	glBindVertexArray(eleCubeVAO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eleCubeEBO);
 	for (unsigned int i = 0; i != cubePositions->length(); ++i)
-	{
+	{		
 		model = glm::mat4();
 		model = glm::translate(model, cubePositions[i]);
-		ambientShader.set_mat4("model", model);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		volumeShader.set_mat4("model", model);
+		glDrawElements(GL_TRIANGLES_ADJACENCY, indi.size(), GL_UNSIGNED_INT, 0);
 	}
 	model = glm::mat4();
 	model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
+	volumeShader.set_mat4("model", model);
+	//ourModel->Draw(volumeShader);
+	glBindVertexArray(0);
+
+	// Enable writing to the color buffer
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+#pragma endregion
+
+#pragma region pass3
+	// We don't need the depth test
+	glDisable(GL_DEPTH_TEST);
+
+	// We want to just sum the ambient component and the diffuse + specular
+	// when the stencil test succeeds, so we'll use this simple blend function.
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+
+	// We want to only render those pixels that have a stencil value
+	// equal to zero.
+	glStencilFunc(GL_EQUAL, 0, 0xffff);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	model = glm::mat4(1.0f);
+	ambientShader.use();
 	ambientShader.set_mat4("model", model);
-	//ourModel->Draw(ambientShader);
-	//glDisable(GL_BLEND);
+	ambientShader.set_mat4("view", model);
+	ambientShader.set_mat4("projection", model);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, diffSpecTex);
+	ambientShader.set_int("DiffSpecTex", 0);
+	glBindVertexArray(fsQuad);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glBindVertexArray(0);
+
+	// Restore some state
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+#pragma endregion
 
 	lightShader.use();
 	lightShader.set_mat4("projection", projection);
@@ -602,6 +632,156 @@ void render()
 	glBindVertexArray(cubeVAO);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
+
+#pragma region comment
+	//glEnable(GL_DEPTH_TEST);
+	//glDepthFunc(GL_LESS);
+
+	////lightPos = glm::vec3(10.0f * sin(t), 10.0f , 10.0f * cos(t));
+	////Çå³ý»º³åÇø£¬°üÀ¨Ä£°å»º³å
+	//glDepthMask(GL_TRUE);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	////render scene into depth
+	////glDrawBuffer(GL_NONE);
+	//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	////glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	//depthShader.use();
+	//depthShader.set_mat4("view", view);
+	//depthShader.set_mat4("projection", projection);
+	//depthShader.set_mat4("model", model);
+	//glBindVertexArray(planeVAO);
+	//glDrawArrays(GL_TRIANGLES, 0, 6);
+	//glBindVertexArray(cubeVAO);
+	//for (unsigned int i = 0; i != cubePositions->length(); ++i)
+	//{
+	//	model = glm::mat4();
+	//	model = glm::translate(model, cubePositions[i]);
+	//	depthShader.set_mat4("model", model);
+	//	glDrawArrays(GL_TRIANGLES, 0, 36);
+	//}
+	//model = glm::mat4();
+	//model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
+	//depthShader.set_mat4("model", model);
+	////ourModel->Draw(depthShader);
+
+
+	//////render shadow volume into stencil
+	//glEnable(GL_STENCIL_TEST);
+	//
+	////glDisable(GL_DEPTH_TEST);
+	//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	//glDepthMask(GL_FALSE);
+	////glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	////glEnable(GL_DEPTH_CLAMP);
+	////glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	//glClear(GL_STENCIL_BUFFER_BIT);
+	//glDisable(GL_CULL_FACE);
+	//glStencilFunc(GL_ALWAYS, 0, 0xFFFF);
+	//
+	//glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+	//glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+	////glDepthMask(GL_FALSE);
+	//volumeShader.use();
+	//volumeShader.set_mat4("projection", projection);
+	//volumeShader.set_mat4("view", view);
+	//volumeShader.set_vec3("lightPos", lightPos);
+	//volumeShader.set_float("volumeBound", volumeBound);
+	//glBindVertexArray(eleCubeVAO);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eleCubeEBO);
+	//for (unsigned int i = 0; i != cubePositions->length(); ++i)
+	//{		
+	//	model = glm::mat4();
+	//	model = glm::translate(model, cubePositions[i]);
+	//	volumeShader.set_mat4("model", model);
+	//	glDrawElements(GL_TRIANGLES_ADJACENCY, indi.size(), GL_UNSIGNED_INT, 0);
+	//}
+	//model = glm::mat4();
+	//model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
+	//volumeShader.set_mat4("model", model);
+	////ourModel->Draw(volumeShader);
+	//glBindVertexArray(0);
+
+	//glDisable(GL_DEPTH_CLAMP);
+	//glEnable(GL_CULL_FACE);
+	////render shadowedscene
+	////glDrawBuffer(GL_BACK);
+	//glDepthMask(GL_TRUE);
+	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glStencilFunc(GL_EQUAL, 0x0, 0xFFFF);
+	//glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	////glEnable(GL_POLYGON_OFFSET_FILL);
+	////glStencilOpSeparate(GL_BACK, GL_KEEP, GL_KEEP, GL_KEEP);
+	//model = glm::mat4();
+	//shadowShader.use();
+	//shadowShader.set_mat4("projection", projection);
+	//shadowShader.set_mat4("view", view);
+	//shadowShader.set_mat4("model", model);
+	//shadowShader.set_vec3("lightPos", lightPos);
+	//shadowShader.set_vec3("viewPos", camera.Position);
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, woods);
+	//shadowShader.set_int("diffuseTexture", 0);
+	//glBindVertexArray(planeVAO);
+	//glDrawArrays(GL_TRIANGLES, 0, 6);
+	//glBindVertexArray(cubeVAO);
+
+	//for (unsigned int i = 0; i != cubePositions->length(); ++i)
+	//{
+	//	model = glm::mat4();
+	//	model = glm::translate(model, cubePositions[i]);
+	//	shadowShader.set_mat4("model", model);
+	//	glDrawArrays(GL_TRIANGLES, 0, 36);
+	//}
+	//model = glm::mat4();
+	//model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
+	//shadowShader.set_mat4("model", model);
+	////glDisable(GL_POLYGON_OFFSET_FILL);
+	////ourModel->Draw(shadowShader);
+	//
+	//glDisable(GL_STENCIL_TEST);
+	//glDisable(GL_DEPTH_TEST);
+	////render ambientlight
+	//glEnable(GL_BLEND);
+	////glBlendEquation(GL_FUNC_ADD);
+	//glBlendFunc(GL_ONE, GL_ONE);
+	//model = glm::mat4();
+	//ambientShader.use();
+	//ambientShader.set_mat4("projection", projection);
+	//ambientShader.set_mat4("view", view);
+	//ambientShader.set_mat4("model", model);
+	//ambientShader.set_vec3("lightPos", lightPos);
+	//ambientShader.set_vec3("viewPos", camera.Position);
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, woods);
+	//ambientShader.set_int("diffuseTexture", 0);
+	//glBindVertexArray(planeVAO);
+	//glDrawArrays(GL_TRIANGLES, 0, 6);
+	//glBindVertexArray(cubeVAO);
+
+	//for (unsigned int i = 0; i != cubePositions->length(); ++i)
+	//{
+	//	model = glm::mat4();
+	//	model = glm::translate(model, cubePositions[i]);
+	//	ambientShader.set_mat4("model", model);
+	//	glDrawArrays(GL_TRIANGLES, 0, 36);
+	//}
+	//model = glm::mat4();
+	//model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
+	//ambientShader.set_mat4("model", model);
+	////ourModel->Draw(ambientShader);
+	//glDisable(GL_BLEND);
+
+	//lightShader.use();
+	//lightShader.set_mat4("projection", projection);
+	//lightShader.set_mat4("view", view);
+	//model = glm::mat4();
+	//model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
+	//model = glm::translate(model, lightPos);
+	//lightShader.set_mat4("model", model);
+	//glBindVertexArray(cubeVAO);
+	//glDrawArrays(GL_TRIANGLES, 0, 36);
+	//glBindVertexArray(0);
 
 #pragma endregion
 
