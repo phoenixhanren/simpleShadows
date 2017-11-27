@@ -138,8 +138,8 @@ public:
 
 	void set_float(const std::string &name, float value) const
 	{
-		std::cout <<  " float  "+ name + " : ";
-		std::cout << glGetUniformLocation(ID, name.c_str()) << std::endl;
+		//std::cout <<  " float  "+ name + " : ";
+		//std::cout << glGetUniformLocation(ID, name.c_str()) << std::endl;
 		glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 	}
 

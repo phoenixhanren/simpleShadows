@@ -9,7 +9,8 @@ uniform vec3 lightPos; //light position in world space
 uniform mat4 view;
 uniform mat4 projection;
 
-float EPSILON = 0.1;
+float EPSILON = 0.0001;
+uniform float volumeBound;
 
 // calculating in world space, then mult view and projection matrix
 void EmitQuad(int startIndex, int endIndex)
@@ -24,14 +25,30 @@ void EmitQuad(int startIndex, int endIndex)
         1.0f);
     EmitVertex();
 
-    gl_Position = projection * view * vec4(startDirWorld, 0.0f);
+    gl_Position = projection * view * vec4(gl_in[startIndex].gl_Position.xyz + startDirWorld * volumeBound, 1.0f);
+    //gl_Position = projection * view * vec4(startDirWorld , 0.0f);
     EmitVertex();
 
-    gl_Position = projection * view * vec4(endDirWorld, 0.0f);
+    gl_Position = projection * view * vec4(gl_in[endIndex].gl_Position.xyz + endDirWorld * volumeBound, 1.0f);
+    //gl_Position = projection * view * vec4(endDirWorld, 0.0f);
     EmitVertex();
     
     EndPrimitive();
 
+}
+
+void EmitOriginal()
+{
+    gl_Position = projection * view * vec4(gl_in[0].gl_Position.xyz, 1.0f);
+    EmitVertex();
+
+    gl_Position = projection * view * vec4(gl_in[2].gl_Position.xyz, 1.0f);
+    EmitVertex();
+
+    gl_Position = projection * view * vec4(gl_in[4].gl_Position.xyz, 1.0f);
+    EmitVertex();
+
+    EndPrimitive();
 }
 
 void main()
@@ -101,20 +118,23 @@ void main()
 
         //back capping
         lightDir = normalize(gl_in[0].gl_Position.xyz - lightPos);
-        gl_Position = projection * view * vec4(lightDir, 0.0f);
+        gl_Position = projection * view * vec4(gl_in[0].gl_Position.xyz + lightDir * volumeBound, 1.0f);
+        //gl_Position = projection * view * vec4(lightDir, 0.0f);
         EmitVertex();
-        EndPrimitive();
-
+        
         lightDir = normalize(gl_in[4].gl_Position.xyz - lightPos);
-        gl_Position = projection * view * vec4(lightDir, 0.0f);
+        gl_Position = projection * view * vec4(gl_in[4].gl_Position.xyz + lightDir * volumeBound , 1.0f);
+        //gl_Position = projection * view * vec4(lightDir  , 0.0f);
         EmitVertex();
-        EndPrimitive();
+      
 
         lightDir = normalize(gl_in[2].gl_Position.xyz - lightPos);
-        gl_Position = projection * view * vec4(lightDir, 0.0f);
+        gl_Position = projection * view * vec4(gl_in[2].gl_Position.xyz + lightDir * volumeBound, 1.0f);
+        //gl_Position = projection * view * vec4(lightDir, 0.0f);
         EmitVertex();
         EndPrimitive();
 
     }
-    //EndPrimitive();
+
+    //EmitOriginal();
 }
