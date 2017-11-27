@@ -23,6 +23,7 @@
     <ProjectGuid>{8A2ED3DE-1767-4C9C-B9F8-A2D34A2F0EB4}</ProjectGuid>
     <RootNamespace>simpleShadows</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <ProjectName>simpleShadowVolume</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -125,7 +126,10 @@
     <ClInclude Include="Shader.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\ambientShader.fs" />
+    <None Include="Shaders\ambientShader.vs" />
     <None Include="Shaders\depthShader.fs" />
+    <None Include="Shaders\depthShader.gs" />
     <None Include="Shaders\depthShader.vs" />
     <None Include="Shaders\lightShader.fs" />
     <None Include="Shaders\lightShader.vs" />

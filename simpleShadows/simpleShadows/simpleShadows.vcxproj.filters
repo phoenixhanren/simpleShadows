@@ -60,5 +60,8 @@
     <None Include="Shaders\shadowVolume.vs" />
     <None Include="Shaders\depthShader.fs" />
     <None Include="Shaders\depthShader.vs" />
+    <None Include="Shaders\ambientShader.fs" />
+    <None Include="Shaders\ambientShader.vs" />
+    <None Include="Shaders\depthShader.gs" />
   </ItemGroup>
 </Project>
