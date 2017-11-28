@@ -202,7 +202,7 @@ void Model::findAdjacencies(const aiMesh * mesh, vector<unsigned int>& ind)
 {
 	vector<Face> uniqueFace;
 	map<aiVector3D, unsigned int> posMap;
-	map<Edge, vector<int>> neighborsMap;
+	map<Edge, vector<unsigned int>> neighborsMap;
 
 	for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
 	{
@@ -237,7 +237,17 @@ void Model::findAdjacencies(const aiMesh * mesh, vector<unsigned int>& ind)
 		neighborsMap[e2].push_back(i);
 		neighborsMap[e3].push_back(i);
 	}
-
+	//vector<GLuint> testInd;
+	//for (auto &i : uniqueFace)
+	//{
+	//	testInd.push_back(i.indices[0]);
+	//	testInd.push_back(i.indices[1]);
+	//	testInd.push_back(i.indices[2]);
+	//}
+	//determineAdjacency(testInd);
+	//vector<unsigned int> ind1 = testInd;
+	//cout << "mesh->mNumFaces..." << mesh->mNumFaces << endl;
+	//cout << "uniqueFaces.size()..." << uniqueFace.size() << endl;
 	for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
 	{
 		const Face & face = uniqueFace[i];
@@ -245,8 +255,8 @@ void Model::findAdjacencies(const aiMesh * mesh, vector<unsigned int>& ind)
 		for (unsigned int j = 0; j < 3; ++j)
 		{
 			Edge e(face.indices[j], face.indices[(j + 1) % 3]);
-			vector<int> neighbors = neighborsMap[e];
-			unsigned int otherFaceInd = neighbors[0];
+			vector<unsigned int> neighbors = neighborsMap[e];
+			int otherFaceInd = neighbors[0];
 			if (otherFaceInd == i)
 			{
 				otherFaceInd = neighbors[1];
@@ -255,28 +265,197 @@ void Model::findAdjacencies(const aiMesh * mesh, vector<unsigned int>& ind)
 			const Face & otherFace = uniqueFace[otherFaceInd];
 
 			unsigned int oppoIndex;
-			bool hasSame = false;
-			for (unsigned int fInd : otherFace.indices)
-			{
-				for (unsigned int eInd : e.indices)
-				{
-					if (fInd == eInd)
-					{
-						hasSame = true;
-						break;
-					}
-				}
-				if (!hasSame)
-				{
-					oppoIndex = fInd;
-					break;
-				}
-			}
+			oppoIndex = otherFace.GetOppositeIndex(e);
+			//bool hasSame = false;
+			//for (int i = 0; i != 3; ++i)
+			//{
+			//	oppoIndex = otherFace.indices[i];
+			//	if (oppoIndex != e.indices[0] && oppoIndex != e.indices[1])
+			//	{
+			//		break;
+			//	}
+			//}
+			//for (unsigned int fInd : otherFace.indices)
+			//{
+			//	for (unsigned int eInd : e.indices)
+			//	{
+			//		if (fInd == eInd)
+			//		{
+			//			hasSame = true;
+			//			break;
+			//		}
+			//	}
+			//	if (!hasSame)
+			//	{
+			//		oppoIndex = fInd;
+			//		break;
+			//	}
+			//	hasSame = false;
+			//}
 			ind.push_back(face.indices[j]);
 			ind.push_back(oppoIndex);
 		}
 
 	}
+#pragma region test
+	//int count = 0;
+	////for (auto i : ind)
+	////{
+	////	++count;
+	////	if (count % 6 != 0)
+	////	{
+	////		cout << i << " ";
+	////	}
+	////	else
+	////	{
+	////		cout << endl;
+	////	}
+	////}
+	////cout << "=======================" << endl;
+
+	////count = 0;
+	////for (auto i : testInd)
+	////{
+	////	++count;
+	////	if (count % 6 != 0)
+	////	{
+	////		cout << i << " ";
+	////	}
+	////	else
+	////	{
+	////		cout << endl;
+	////	}
+	////}
+	////cout << "=======================" << endl;
+	////cout << "23333" << endl; 
+
+	//count = 0;
+
+	//for (int i = 0; i < ind.size() && i < testInd.size(); ++i)
+	//{
+	//	if (ind[i] != testInd[i])
+	//	{
+	//		++count;
+	//		cout << ind[i] << " ... " << testInd[i] << endl;
+	//		for (int j = 0; j != i + 1; ++j)
+	//		{
+	//			cout << ind[j] << " ";
+	//		}
+	//		cout << endl;
+	//		for (int j = 0; j != i + 1; ++j)
+	//		{
+	//			cout << testInd[j] << " ";
+	//		}
+	//		cout << endl;
+	//		cout << endl;
+
+	//	}
+	//}
+	//cout << "total difference " << count << endl;
+#pragma endregion
+
+
+}
+
+void Model::determineAdjacency(vector<GLuint>& el)
+{
+
+	// Elements with adjacency info
+	vector<GLuint> elAdj;
+
+	// Copy and make room for adjacency info
+	for (GLuint i = 0; i < el.size(); i += 3)
+	{
+		elAdj.push_back(el[i]);
+		elAdj.push_back(-1);
+		elAdj.push_back(el[i + 1]);
+		elAdj.push_back(-1);
+		elAdj.push_back(el[i + 2]);
+		elAdj.push_back(-1);
+	}
+
+	// Find matching edges
+	for (GLuint i = 0; i < elAdj.size(); i += 6)
+	{
+		// A triangle
+		int a1 = elAdj[i];
+		int b1 = elAdj[i + 2];
+		int c1 = elAdj[i + 4];
+
+		// Scan subsequent triangles
+		for (GLuint j = i + 6; j < elAdj.size(); j += 6)
+		{
+			int a2 = elAdj[j];
+			int b2 = elAdj[j + 2];
+			int c2 = elAdj[j + 4];
+
+			// Edge 1 == Edge 1
+			if ((a1 == a2 && b1 == b2) || (a1 == b2 && b1 == a2))
+			{
+				elAdj[i + 1] = c2;
+				elAdj[j + 1] = c1;
+			}
+			// Edge 1 == Edge 2
+			if ((a1 == b2 && b1 == c2) || (a1 == c2 && b1 == b2))
+			{
+				elAdj[i + 1] = a2;
+				elAdj[j + 3] = c1;
+			}
+			// Edge 1 == Edge 3
+			if ((a1 == c2 && b1 == a2) || (a1 == a2 && b1 == c2))
+			{
+				elAdj[i + 1] = b2;
+				elAdj[j + 5] = c1;
+			}
+			// Edge 2 == Edge 1
+			if ((b1 == a2 && c1 == b2) || (b1 == b2 && c1 == a2))
+			{
+				elAdj[i + 3] = c2;
+				elAdj[j + 1] = a1;
+			}
+			// Edge 2 == Edge 2
+			if ((b1 == b2 && c1 == c2) || (b1 == c2 && c1 == b2))
+			{
+				elAdj[i + 3] = a2;
+				elAdj[j + 3] = a1;
+			}
+			// Edge 2 == Edge 3
+			if ((b1 == c2 && c1 == a2) || (b1 == a2 && c1 == c2))
+			{
+				elAdj[i + 3] = b2;
+				elAdj[j + 5] = a1;
+			}
+			// Edge 3 == Edge 1
+			if ((c1 == a2 && a1 == b2) || (c1 == b2 && a1 == a2))
+			{
+				elAdj[i + 5] = c2;
+				elAdj[j + 1] = b1;
+			}
+			// Edge 3 == Edge 2
+			if ((c1 == b2 && a1 == c2) || (c1 == c2 && a1 == b2))
+			{
+				elAdj[i + 5] = a2;
+				elAdj[j + 3] = b1;
+			}
+			// Edge 3 == Edge 3
+			if ((c1 == c2 && a1 == a2) || (c1 == a2 && a1 == c2))
+			{
+				elAdj[i + 5] = b2;
+				elAdj[j + 5] = b1;
+			}
+		}
+	}
+
+	// Look for any outside edges
+	for (GLuint i = 0; i < elAdj.size(); i += 6)
+	{
+		if (elAdj[i + 1] == -1) elAdj[i + 1] = elAdj[i + 4];
+		if (elAdj[i + 3] == -1) elAdj[i + 3] = elAdj[i];
+		if (elAdj[i + 5] == -1) elAdj[i + 5] = elAdj[i + 2];
+	}
+
+	// Copy all data back into el
+	el = elAdj;
 }
 
 

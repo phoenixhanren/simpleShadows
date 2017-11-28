@@ -61,6 +61,6 @@ private:
 
 	//生成邻接关系
 	void findAdjacencies(const aiMesh * mesh, vector<unsigned int> & ind);
-
+	void determineAdjacency(vector<GLuint> &el);
 };
 #endif
