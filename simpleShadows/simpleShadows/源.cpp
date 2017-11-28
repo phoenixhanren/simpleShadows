@@ -125,6 +125,7 @@ unsigned int eleCubeVAO, eleCubeVBO, eleCubeEBO;
 unsigned int depthBuf, ambBuf, diffSpecTex, fsQuad;
 unsigned int colorDepthFBO;
 Model * ourModel;
+Model * ourModelADJ;
 unsigned int woods;
 glm::vec3 cubePositions[3];
 GLfloat cubeVertices[] = {
@@ -237,7 +238,10 @@ int main()
 	volumeShader = Shader("Shaders//shadowVolume.vs", "Shaders//shadowVolume.fs", "Shaders//shadowVolume.gs");
 	depthShader = Shader("Shaders//depthShader.vs", "Shaders//depthShader.fs");
 	ambientShader = Shader("Shaders//ambientShader.vs", "Shaders//ambientShader.fs");
-	ourModel =  new Model("D:/daily exercise/opengl/models/monkey.ply", true);
+	//ourModel =  new Model("D:/daily exercise/opengl/models/monkey.ply", false);
+	//ourModelADJ = new Model("D:/daily exercise/opengl/models/monkey.ply", true);
+	ourModel = new Model("D:/daily exercise/opengl/models/untitled.obj", false);
+	ourModelADJ = new Model("D:/daily exercise/opengl/models/untitled.obj", true);
 	while (!glfwWindowShouldClose(window))
 	{
 		render();
@@ -245,6 +249,7 @@ int main()
 
 	clean();
 	delete ourModel;
+	delete ourModelADJ;
 	return 0;
 }
 
@@ -362,17 +367,17 @@ void setup()
 	
 	findAdjacencies(mesh, indi);
 	int count = 0;
-	for (auto &i : indi)
-	{
-		cout << i << " ";
-		if ((++count) % 6 == 0)
-		{
-			cout << endl;
-		}
-	}
-	cout << endl;
+	//for (auto &i : indi)
+	//{
+	//	cout << i << " ";
+	//	if ((++count) % 6 == 0)
+	//	{
+	//		cout << endl;
+	//	}
+	//}
+	//cout << endl;
 
-	cout << indi.size() << endl;
+	//cout << indi.size() << endl;
 
 #pragma region VAOS
 	glGenVertexArrays(1, &planeVAO);
@@ -468,7 +473,7 @@ void setup()
 
 	GLenum result = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (result == GL_FRAMEBUFFER_COMPLETE) {
-		printf("Framebuffer is complete.\n");
+		//printf("Framebuffer is complete.\n");
 	}
 	else {
 		printf("Framebuffer is not complete.\n");
@@ -478,8 +483,10 @@ void setup()
 #pragma endregion
 
 	// Set up a  VAO for the full-screen quad
-	GLfloat verts[] = { -1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f,
-		1.0f, 1.0f, 0.0f, -1.0f, 1.0f, 0.0f };
+	GLfloat verts[] = { -1.0f, -1.0f, 0.0f, 
+						1.0f, -1.0f, 0.0f,
+						1.0f, 1.0f, 0.0f,
+						-1.0f, 1.0f, 0.0f };
 	GLuint bufHandle;
 	glGenBuffers(1, &bufHandle);
 	glBindBuffer(GL_ARRAY_BUFFER, bufHandle);
@@ -507,7 +514,7 @@ void render()
 	double t = glfwGetTime();
 	glm::mat4 model;
 	glm::mat4 view = camera.GetViewMatrix();
-	lightPos = glm::vec3(10.0f * sin(t), 10.0f, 10.0f * cos(t));
+	//lightPos = glm::vec3(10.0f * sin(t), 10.0f, 10.0f * cos(t));
 	//glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),
 	//	(float)SCR_WIDTH / SCR_HEIGHT, 1.0f, 100.0f);
 	glm::mat4 projection = glm::infinitePerspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / SCR_HEIGHT, 1.0f);
@@ -516,6 +523,7 @@ void render()
 	glDepthMask(GL_TRUE);
 	glDisable(GL_STENCIL_TEST);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 	glBindFramebuffer(GL_FRAMEBUFFER, colorDepthFBO);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	shadowShader.use();
@@ -538,11 +546,12 @@ void render()
 		shadowShader.set_mat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
-	//model = glm::mat4();
-	//model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
-	//shadowShader.set_mat4("model", model);
-	//glDisable(GL_POLYGON_OFFSET_FILL);
-	//ourModel->Draw(shadowShader);
+	
+	model = glm::mat4();
+	model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
+	shadowShader.set_mat4("model", model);
+	ourModel->Draw(shadowShader);
+	glDisable(GL_CULL_FACE);
 #pragma endregion
 
 #pragma region pass2
@@ -561,17 +570,17 @@ void render()
 	// Disable writing to the color buffer and depth buffer
 	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	glDepthMask(GL_FALSE);
-
+	
 	// Re-bind to the default framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+	glEnable(GL_DEPTH_CLAMP);
 	// Set up the stencil test so that it always succeeds, increments
 	// for front faces, and decrements for back faces.
 	glClear(GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_STENCIL_TEST);
 	glStencilFunc(GL_ALWAYS, 0, 0xffff);
-	glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_KEEP, GL_INCR_WRAP);
-	glStencilOpSeparate(GL_BACK, GL_KEEP, GL_KEEP, GL_DECR_WRAP);
+	glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+	glStencilOpSeparate(GL_BACK, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
 
 	glBindVertexArray(eleCubeVAO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eleCubeEBO);
@@ -582,12 +591,13 @@ void render()
 		volumeShader.set_mat4("model", model);
 		glDrawElements(GL_TRIANGLES_ADJACENCY, indi.size(), GL_UNSIGNED_INT, 0);
 	}
+	glBindVertexArray(0);
 	model = glm::mat4();
 	model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
 	volumeShader.set_mat4("model", model);
-	//ourModel->Draw(volumeShader);
-	glBindVertexArray(0);
-
+	ourModelADJ->Draw(volumeShader);
+	
+	glDisable(GL_DEPTH_CLAMP);
 	// Enable writing to the color buffer
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 #pragma endregion

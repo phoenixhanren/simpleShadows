@@ -39,8 +39,6 @@ struct Texture
 	aiString path;
 };
 
-
-
 struct Edge
 {
 	Edge(unsigned int s, unsigned int e) {

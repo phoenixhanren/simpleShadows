@@ -1,16 +1,21 @@
-﻿  源.cpp
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(387,5): warning MSB8028: 中间目录(Debug\)包含从另一个项目(simpleShadows.vcxproj)共享的文件。   这会导致错误的清除和重新生成行为。
+  源.cpp
 d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\shader.h(83): warning C4101: “info_log”: 未引用的局部变量
 d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\shader.h(82): warning C4101: “success”: 未引用的局部变量
 d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(110): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
 d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(111): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(289): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
-d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(290): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
-d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(294): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(295): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(297): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
-d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(298): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
-d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(305): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(504): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(812): warning C4018: “<”: 有符号/无符号不匹配
-  simpleShadows.vcxproj -> D:\daily exercise\opengl\simpleShadows\simpleShadows\Debug\simpleShadows.exe
-  simpleShadows.vcxproj -> D:\daily exercise\opengl\simpleShadows\simpleShadows\Debug\simpleShadows.pdb (Partial PDB)
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(294): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(295): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(299): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(300): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(302): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(303): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(310): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(511): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(822): warning C4018: “<”: 有符号/无符号不匹配
+  Model.cpp
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\shader.h(83): warning C4101: “info_log”: 未引用的局部变量
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\shader.h(82): warning C4101: “success”: 未引用的局部变量
+  正在生成代码...
+  simpleShadows.vcxproj -> D:\daily exercise\opengl\simpleShadows\simpleShadows\Debug\simpleShadowVolume.exe
+  simpleShadows.vcxproj -> D:\daily exercise\opengl\simpleShadows\simpleShadows\Debug\simpleShadowVolume.pdb (Partial PDB)

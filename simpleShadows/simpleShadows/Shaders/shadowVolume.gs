@@ -9,7 +9,7 @@ uniform vec3 lightPos; //light position in world space
 uniform mat4 view;
 uniform mat4 projection;
 
-float EPSILON = 0.0001;
+float EPSILON = 0.01;
 uniform float volumeBound;
 
 // calculating in world space, then mult view and projection matrix
@@ -21,12 +21,12 @@ void EmitQuad(int startIndex, int endIndex)
         1.0f);
     EmitVertex();
 
-    gl_Position = projection * view * vec4(gl_in[endIndex].gl_Position.xyz + EPSILON * endDirWorld,
-        1.0f);
+    gl_Position = projection * view * vec4(startDirWorld , 0.0f);
     EmitVertex();
 
     //gl_Position = projection * view * vec4(gl_in[startIndex].gl_Position.xyz + startDirWorld * volumeBound, 1.0f);
-    gl_Position = projection * view * vec4(startDirWorld , 0.0f);
+    gl_Position = projection * view * vec4(gl_in[endIndex].gl_Position.xyz + EPSILON * endDirWorld,
+        1.0f);
     EmitVertex();
 
     //gl_Position = projection * view * vec4(gl_in[endIndex].gl_Position.xyz + endDirWorld * volumeBound, 1.0f);
