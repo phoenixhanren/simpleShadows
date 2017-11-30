@@ -8,8 +8,15 @@ in VS_OUT {
     vec4 FragPosLightSpace;
 } fs_in;
 
-uniform sampler2D diffuseTexture;
+struct Material {
+    sampler2D texture_diffuse1;
+    sampler2D texture_specular1;
+    float shininess;
+};
+
+//uniform sampler2D diffuseTexture;
 uniform sampler2D shadowMap;
+uniform Material material;
 
 uniform vec3 lightPos;
 uniform vec3 viewPos;
@@ -24,6 +31,7 @@ float ShadowCalculation(vec4 fragPosLightSpace, float bias)
     float shadow = 0.0;
     //float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
+    //PCF
     if (projCoords.z < 1.0)
     {
         vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
@@ -43,7 +51,7 @@ float ShadowCalculation(vec4 fragPosLightSpace, float bias)
 
 void main()
 {
-    vec3 color = texture(diffuseTexture, fs_in.TexCoords).rgb;
+    vec3 color = texture(material.texture_diffuse1, fs_in.TexCoords).rgb;
     vec3 normal = normalize(fs_in.Normal);
     vec3 lightColor = vec3(1.0);
 
@@ -56,6 +64,7 @@ void main()
     vec3 viewDir = normalize(viewPos - fs_in.FragPos);
     vec3 halfWayDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(halfWayDir, normal), 0.0f), 64.0f);
+    color = texture(material.texture_specular1, fs_in.TexCoords).rgb;
     vec3 specular = spec * lightColor * color;
     float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
     float shadow = ShadowCalculation(fs_in.FragPosLightSpace, bias);

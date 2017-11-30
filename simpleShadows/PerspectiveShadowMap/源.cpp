@@ -6,6 +6,7 @@
 #include <GLFW\glfw3.h>
 #include "Shader.h"
 #include "EulerFPSCamera.h"
+#include "Model.h"
 
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
@@ -222,14 +223,14 @@ int main()
 	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
 	Shader simpleDepthShader("Shaders//simpleDepthShader.vs", "Shaders//simpleDepthShader.fs");
-	simpleDepthShader.use();
-	simpleDepthShader.set_mat4("lightSpaceMatrix", lightSpaceMatrix);
 
 	Shader debugQuadShader("Shaders//debugCubeShader.vs", "Shaders//debugCubeShader.fs");
 
 	Shader shadowShader("Shaders//shadowShader.vs", "Shaders//shadowShader.fs");
 
-	unsigned int woods = loadTexture("D:/daily exercise/opengl/textures/wood.png");
+	unsigned int woods = loadTexture("Textures//wood.png");
+
+	Model ourModel("D:/daily exercise/opengl/models/nanosuit/nanosuit.obj");
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -239,11 +240,17 @@ int main()
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
+
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glCullFace(GL_FRONT);
+		//simpleDepthShader.use();
 		simpleDepthShader.use();
+		lightPos = glm::vec3(-2.0f * sin(currentFrame), 4.0f, -1.0f * cos(currentFrame));
+		lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		lightSpaceMatrix = lightProjection * lightView;
+		simpleDepthShader.set_mat4("lightSpaceMatrix", lightSpaceMatrix);
 		glm::mat4 model;
 		simpleDepthShader.set_mat4("model", model);
 		glBindVertexArray(planeVAO);
@@ -258,6 +265,11 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		glBindVertexArray(0);
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(0.0f, -0.1f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+		simpleDepthShader.set_mat4("model", model);
+		ourModel.Draw(simpleDepthShader);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -280,7 +292,8 @@ int main()
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		shadowShader.set_int("shadowMap", 1);
-		shadowShader.set_int("diffuseTexture", 0);
+		shadowShader.set_int("material.texture_diffuse1", 0);
+		shadowShader.set_int("material.texture_specular1", 0);
 		glBindVertexArray(planeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glBindVertexArray(cubeVAO);
@@ -293,6 +306,12 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		glBindVertexArray(0);
+
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(0.0f, -0.1f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+		shadowShader.set_mat4("model", model);
+		ourModel.Draw(shadowShader);
 		/*debugQuadShader.use();
 		glBindVertexArray(quadVAO);
 		glActiveTexture(GL_TEXTURE0);

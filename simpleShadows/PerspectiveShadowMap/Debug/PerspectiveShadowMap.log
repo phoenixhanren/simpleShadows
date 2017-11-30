@@ -1,15 +1,15 @@
 ﻿  源.cpp
 d:\daily exercise\opengl\simpleshadows\simpleshadows\perspectiveshadowmap\shader.h(84): warning C4101: “info_log”: 未引用的局部变量
 d:\daily exercise\opengl\simpleshadows\simpleshadows\perspectiveshadowmap\shader.h(83): warning C4101: “success”: 未引用的局部变量
-d:\daily exercise\opengl\simpleshadows\simpleshadows\perspectiveshadowmap\源.cpp(29): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
 d:\daily exercise\opengl\simpleshadows\simpleshadows\perspectiveshadowmap\源.cpp(30): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-d:\daily exercise\opengl\simpleshadows\simpleshadows\perspectiveshadowmap\源.cpp(238): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-d:\daily exercise\opengl\simpleshadows\simpleshadows\perspectiveshadowmap\源.cpp(349): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
-d:\daily exercise\opengl\simpleshadows\simpleshadows\perspectiveshadowmap\源.cpp(350): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
-d:\daily exercise\opengl\simpleshadows\simpleshadows\perspectiveshadowmap\源.cpp(354): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-d:\daily exercise\opengl\simpleshadows\simpleshadows\perspectiveshadowmap\源.cpp(355): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-d:\daily exercise\opengl\simpleshadows\simpleshadows\perspectiveshadowmap\源.cpp(357): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
-d:\daily exercise\opengl\simpleshadows\simpleshadows\perspectiveshadowmap\源.cpp(358): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
-d:\daily exercise\opengl\simpleshadows\simpleshadows\perspectiveshadowmap\源.cpp(367): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\perspectiveshadowmap\源.cpp(31): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\perspectiveshadowmap\源.cpp(239): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\perspectiveshadowmap\源.cpp(368): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\perspectiveshadowmap\源.cpp(369): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\perspectiveshadowmap\源.cpp(373): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\perspectiveshadowmap\源.cpp(374): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\perspectiveshadowmap\源.cpp(376): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\perspectiveshadowmap\源.cpp(377): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\daily exercise\opengl\simpleshadows\simpleshadows\perspectiveshadowmap\源.cpp(386): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
   PerspectiveShadowMap.vcxproj -> D:\daily exercise\opengl\simpleShadows\simpleShadows\Debug\PerspectiveShadowMap.exe
   PerspectiveShadowMap.vcxproj -> D:\daily exercise\opengl\simpleShadows\simpleShadows\Debug\PerspectiveShadowMap.pdb (Partial PDB)
