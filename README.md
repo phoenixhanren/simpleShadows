@@ -1,12 +1,14 @@
-# simpleShadows
-some shadow tech
-DONE
-·simple shadow volume using GS completed
+# SimpleShadows
 
-DOING
-·PSM
-·LiSM
-·PPSM
-·CSM
+**some shadow tech**
+
+* DONE
+    * simple shadow volume using GS completed
+
+* DOING
+    * PSM
+    * LiSM
+    * PPSM
+    * CSM
 
 

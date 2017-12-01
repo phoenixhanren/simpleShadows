@@ -814,7 +814,25 @@ void render()
 
 void clean()
 {
-
+	/*
+	unsigned int planeVAO, planeVBO;
+unsigned int quadVAO, quadVBO;
+unsigned int cubeVAO, cubeVBO;
+unsigned int eleCubeVAO, eleCubeVBO, eleCubeEBO;
+unsigned int depthBuf, ambBuf, diffSpecTex, fsQuad;
+unsigned int colorDepthFBO;
+	*/
+	glDeleteBuffers(1, &planeVBO);
+	glDeleteBuffers(1, &quadVBO);
+	glDeleteBuffers(1, &cubeVBO);
+	glDeleteBuffers(1, &eleCubeVBO);
+	glDeleteBuffers(1, &eleCubeEBO);
+	glDeleteVertexArrays(1, &planeVAO);
+	glDeleteVertexArrays(1, &quadVAO);
+	glDeleteVertexArrays(1, &cubeVAO);
+	glDeleteVertexArrays(1, &eleCubeVAO);
+	glDeleteFramebuffers(1, &colorDepthFBO);
+	
 }
 
 void drawModelVolumes()
