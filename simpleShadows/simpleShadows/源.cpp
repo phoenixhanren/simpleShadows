@@ -562,6 +562,21 @@ void render()
 	model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
 	shadowShader.set_mat4("model", model);
 	ourModel->Draw(shadowShader);
+	
+	float startScale = 0.1;
+	float startTran = 5;
+	for (int i = 0; i != 20; ++i)
+	{
+		model = glm::mat4();
+		model = glm::scale(model, glm::vec3(startScale, startScale, startScale));
+		//startScale += 0.1;
+		model = glm::translate(model, glm::vec3(0, 0, startTran));
+		startTran += 5;
+		shadowShader.set_mat4("model", model);
+		ourModel->Draw(shadowShader);
+	}
+
+
 	glDisable(GL_CULL_FACE);
 #pragma endregion
 
@@ -608,6 +623,19 @@ void render()
 	volumeShader.set_mat4("model", model);
 	ourModelADJ->Draw(volumeShader);
 	
+	startScale = 0.1;
+	startTran = 5;
+	for (int i = 0; i != 20; ++i)
+	{
+		model = glm::mat4();
+		model = glm::scale(model, glm::vec3(startScale, startScale, startScale));
+		//startScale += 0.1;
+		model = glm::translate(model, glm::vec3(0, 0, startTran));
+		startTran += 5;
+		volumeShader.set_mat4("model", model);
+		ourModelADJ->Draw(volumeShader);
+	}
+
 	glDisable(GL_DEPTH_CLAMP);
 	// Enable writing to the color buffer
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
