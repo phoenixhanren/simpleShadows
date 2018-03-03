@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "simpleShadowVolume", "simpl
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PerspectiveShadowMap", "PerspectiveShadowMap\PerspectiveShadowMap.vcxproj", "{0BEFBB97-0F15-44FF-A586-5A7AB29BDBB8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Variance Shadow Maps", "Variance Shadow Maps\Variance Shadow Maps.vcxproj", "{03A04110-F459-4EFD-9076-89F411C7A4DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{0BEFBB97-0F15-44FF-A586-5A7AB29BDBB8}.Release|x64.Build.0 = Release|x64
 		{0BEFBB97-0F15-44FF-A586-5A7AB29BDBB8}.Release|x86.ActiveCfg = Release|Win32
 		{0BEFBB97-0F15-44FF-A586-5A7AB29BDBB8}.Release|x86.Build.0 = Release|Win32
+		{03A04110-F459-4EFD-9076-89F411C7A4DF}.Debug|x64.ActiveCfg = Debug|x64
+		{03A04110-F459-4EFD-9076-89F411C7A4DF}.Debug|x64.Build.0 = Debug|x64
+		{03A04110-F459-4EFD-9076-89F411C7A4DF}.Debug|x86.ActiveCfg = Debug|Win32
+		{03A04110-F459-4EFD-9076-89F411C7A4DF}.Debug|x86.Build.0 = Debug|Win32
+		{03A04110-F459-4EFD-9076-89F411C7A4DF}.Release|x64.ActiveCfg = Release|x64
+		{03A04110-F459-4EFD-9076-89F411C7A4DF}.Release|x64.Build.0 = Release|x64
+		{03A04110-F459-4EFD-9076-89F411C7A4DF}.Release|x86.ActiveCfg = Release|Win32
+		{03A04110-F459-4EFD-9076-89F411C7A4DF}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

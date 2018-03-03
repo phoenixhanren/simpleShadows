@@ -525,7 +525,7 @@ void render()
 	double t = glfwGetTime();
 	glm::mat4 model;
 	glm::mat4 view = camera.GetViewMatrix();
-	lightPos = glm::vec3(10.0f * sin(t), 10.0f, 10.0f * cos(t));
+	//lightPos = glm::vec3(10.0f * sin(t), 10.0f, 10.0f * cos(t));
 	//glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),
 	//	(float)SCR_WIDTH / SCR_HEIGHT, 1.0f, 100.0f);
 	glm::mat4 projection = glm::infinitePerspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / SCR_HEIGHT, 1.0f);
