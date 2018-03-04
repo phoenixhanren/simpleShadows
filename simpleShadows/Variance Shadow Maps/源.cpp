@@ -214,7 +214,7 @@ int main()
 	
 	glGenTextures(1, &varDepthMap);
 	glBindTexture(GL_TEXTURE_2D, varDepthMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_RG, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -310,14 +310,8 @@ int main()
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, woods);
 		glActiveTexture(GL_TEXTURE1);
-		if (is_Var)
-		{
-			glBindTexture(GL_TEXTURE_2D, varDepthMap);
-		}
-		else
-		{
-			glBindTexture(GL_TEXTURE_2D, depthMap);
-		}
+		glBindTexture(GL_TEXTURE_2D, varDepthMap);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
 		//glBindTexture(GL_TEXTURE_2D, varDepthMap);
 		shadowShader.set_int("shadowMap", 1);
 		shadowShader.set_int("diffuseTexture", 0);
@@ -338,17 +332,19 @@ int main()
 		debugQuadShader.use();
 		glBindVertexArray(quadVAO);
 		glActiveTexture(GL_TEXTURE0);
-		if (is_Var)
-		{
+		//if (is_Var)
+		//{
 			glBindTexture(GL_TEXTURE_2D, varDepthMap);
-		}
-		else
-		{
-			glBindTexture(GL_TEXTURE_2D, depthMap);
-		}
-		debugQuadShader.set_int("depthMap", 0);
+		//}
+		//else
+		//{
+			//glBindTexture(GL_TEXTURE_2D, depthMap);
+		//}
+		debugQuadShader.set_bool("m1", is_Var);
+		debugQuadShader.set_int("depthMap", 0);*/
+
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-		glBindVertexArray(0);*/
+		glBindVertexArray(0);
 
 
 		// input
