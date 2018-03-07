@@ -15,7 +15,7 @@ void main()
 
     float dx = dFdx(m1);
     float dy = dFdy(m1);
-    m2 += 0.25 * (dx * dx + dy * dy); //make var more var for shadow arnce
+    m2 += 0.25 * (dx * dx + dy * dy); //make var more var for shadow ance
 
     fragColor = vec2(m1, m2);
 }

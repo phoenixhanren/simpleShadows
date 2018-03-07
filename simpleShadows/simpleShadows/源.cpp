@@ -587,14 +587,11 @@ void render()
 	volumeShader.set_vec3("lightPos", lightPos);
 	volumeShader.set_float("volumeBound", volumeBound);
 
-	// Copy the depth and color buffers from the FBO into the default FBO
-	// The color buffer should contain the ambient component.
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, colorDepthFBO);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	glBlitFramebuffer(0, 0, SCR_WIDTH - 1, SCR_HEIGHT - 1, 0, 0, SCR_WIDTH - 1, SCR_HEIGHT - 1, GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
-	// Disable writing to the color buffer and depth buffer
-	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	glDepthMask(GL_FALSE);
 	
 	// Re-bind to the default framebuffer

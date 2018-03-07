@@ -13,10 +13,7 @@ d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(303):
 d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(310): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
 d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(522): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
 d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(566): warning C4305: “初始化”: 从“double”到“float”截断
-d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(626): warning C4305: “=”: 从“double”到“float”截断
-d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(879): warning C4018: “<”: 有符号/无符号不匹配
-LINK : warning LNK4098: 默认库“LIBCMT”与其他库的使用冲突；请使用 /NODEFAULTLIB:library
-LINK : warning LNK4098: 默认库“MSVCRT”与其他库的使用冲突；请使用 /NODEFAULTLIB:library
-glew32s.lib(glew.obj) : warning LNK4099: 未找到 PDB“glew_static.pdb”(使用“glew32s.lib(glew.obj)”或在“D:\daily exercise\opengl\simpleShadows\simpleShadows\Debug\glew_static.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(623): warning C4305: “=”: 从“double”到“float”截断
+d:\daily exercise\opengl\simpleshadows\simpleshadows\simpleshadows\源.cpp(876): warning C4018: “<”: 有符号/无符号不匹配
   simpleShadows.vcxproj -> D:\daily exercise\opengl\simpleShadows\simpleShadows\Debug\simpleShadowVolume.exe
   simpleShadows.vcxproj -> D:\daily exercise\opengl\simpleShadows\simpleShadows\Debug\simpleShadowVolume.pdb (Partial PDB)
