@@ -11,8 +11,14 @@
         ![](https://github.com/phoenixhanren/simpleShadows/raw/master/simpleShadows/Results/shadowVolume/shadowvolumes2.PNG) <br>   
       #最终效果<br>
         ![](https://github.com/phoenixhanren/simpleShadows/raw/master/simpleShadows/Results/shadowVolume/shadowvolumeresult.PNG)<br>         
-
-    * variance shadow map
+    * standard shadow map with pcf <br>
+      #最终效果<br>
+        ![](https://github.com/phoenixhanren/simpleShadows/raw/master/simpleShadows/Results/sshadowmap/standardshadowmapwithPCF.PNG)<br>       
+    * variance shadow map <br>
+      #VSM without pre-filtering<br>
+        ![](https://github.com/phoenixhanren/simpleShadows/raw/master/simpleShadows/Results/varianceshadowmap/standardvarianceshadowmap.PNG)<br>        
+      #light bleeding<br>
+        ![](https://github.com/phoenixhanren/simpleShadows/raw/master/simpleShadows/Results/varianceshadowmap/lightbleeding.PNG)<br>  
 * DOING
     * PSM
     * LiSM

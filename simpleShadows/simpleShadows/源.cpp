@@ -591,7 +591,7 @@ void render()
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	glBlitFramebuffer(0, 0, SCR_WIDTH - 1, SCR_HEIGHT - 1, 0, 0, SCR_WIDTH - 1, SCR_HEIGHT - 1, GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
-	//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	glDepthMask(GL_FALSE);
 	
 	// Re-bind to the default framebuffer

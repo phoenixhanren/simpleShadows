@@ -136,7 +136,7 @@ int main()
 	};
 
 	glm::vec3 cubePositions[] = {
-		glm::vec3(0.0f, 1.5f, 0.0f),
+	//	glm::vec3(0.0f, 1.5f, 0.0f),
 		glm::vec3(2.0f, 0.0f, 1.0f),
 		glm::vec3(-1.0f, 0.0f, 2.0f)
 	};
@@ -247,9 +247,9 @@ int main()
 		glCullFace(GL_FRONT);
 		//simpleDepthShader.use();
 		simpleDepthShader.use();
-		lightPos = glm::vec3(-2.0f * sin(currentFrame), 4.0f, -1.0f * cos(currentFrame));
-		lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		lightSpaceMatrix = lightProjection * lightView;
+		//lightPos = glm::vec3(-2.0f * sin(currentFrame), 4.0f, -1.0f * cos(currentFrame));
+		//lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		//lightSpaceMatrix = lightProjection * lightView;
 		simpleDepthShader.set_mat4("lightSpaceMatrix", lightSpaceMatrix);
 		glm::mat4 model;
 		simpleDepthShader.set_mat4("model", model);
@@ -276,7 +276,7 @@ int main()
 		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glCullFace(GL_BACK);
-		/*shadowShader.use();
+		shadowShader.use();
 		model = glm::mat4();
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),
@@ -311,14 +311,14 @@ int main()
 		model = glm::translate(model, glm::vec3(0.0f, -0.1f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
 		shadowShader.set_mat4("model", model);
-		ourModel.Draw(shadowShader);*/
-		debugQuadShader.use();
+		ourModel.Draw(shadowShader);
+		/*debugQuadShader.use();
 		glBindVertexArray(quadVAO);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		glBindVertexArray(0);
-		ourModel.Draw(debugQuadShader);
+		ourModel.Draw(debugQuadShader);*/
 
 		// input
 		// -----
